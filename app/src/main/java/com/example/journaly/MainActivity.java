@@ -10,6 +10,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.example.journaly.analysis_screen.AnalysisFragment;
+import com.example.journaly.create_screen.CreateActivity;
 import com.example.journaly.databinding.ActivityMainBinding;
 import com.example.journaly.home_screen.HomeFragment;
 import com.example.journaly.login.LoginActivity;
@@ -22,7 +23,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class MainActivity extends AppCompatActivity {
 
-    ActivityMainBinding binding;
+    private ActivityMainBinding binding;
     private HomeFragment homeFragment;
     private AnalysisFragment analysisFragment;
     private MoreFragment moreFragment;
@@ -48,6 +49,14 @@ public class MainActivity extends AppCompatActivity {
         settingsFragment = SettingsFragment.newInstance();
 
         initBottomNavigation();
+        initFab();
+    }
+
+    private void initFab() {
+        binding.createJournalFab.setOnClickListener(v -> {
+            Intent i = new Intent(MainActivity.this, CreateActivity.class);
+            startActivity(i);
+        });
     }
 
     private void initBottomNavigation() {

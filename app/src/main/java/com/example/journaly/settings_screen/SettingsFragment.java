@@ -1,36 +1,64 @@
 package com.example.journaly.settings_screen;
 
+import android.content.Intent;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceFragmentCompat;
 
+import android.preference.PreferenceFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.journaly.MainActivity;
 import com.example.journaly.R;
+import com.example.journaly.login.LoginActivity;
+import com.example.journaly.login.LoginManager;
+
+import org.jetbrains.annotations.NotNull;
 
 
-public class SettingsFragment extends Fragment {
+public class SettingsFragment extends PreferenceFragmentCompat {
 
+    public SettingsFragment(){
 
-    public SettingsFragment() {
-        // Required empty public constructor
     }
 
-    public static SettingsFragment newInstance() {
+    public static SettingsFragment newInstance(){
         return new SettingsFragment();
     }
 
+
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
+        setPreferencesFromResource(R.xml.preferences_menu, rootKey);
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_settings, container, false);
+    public View onCreateView(@NonNull @NotNull LayoutInflater inflater, @Nullable @org.jetbrains.annotations.Nullable ViewGroup container, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
+        View root = super.onCreateView(inflater, container, savedInstanceState);
+        initPreferences();
+        return root;
+    }
+
+    private void initPreferences() {
+        findPreference("preference_logout").setOnPreferenceClickListener(preference -> {
+            LoginManager.getInstance().logout();
+            goToLoginScreen();
+            return true;
+        });
+    }
+
+    private void goToLoginScreen() {
+        Intent intent = new Intent(getActivity(), LoginActivity.class);
+        //Flags prevent user from returning to MainActivityView when pressing back button
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
     }
 }

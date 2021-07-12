@@ -43,6 +43,7 @@ dependencies {
     implementation platform('com.google.firebase:firebase-bom:28.2.1')
     implementation 'com.google.firebase:firebase-auth'
     implementation 'com.github.GrenderG:Toasty:1.5.0'
+    implementation 'androidx.preference:preference:1.1.1'
     implementation 'org.jetbrains:annotations:15.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     testImplementation 'junit:junit:4.+'
