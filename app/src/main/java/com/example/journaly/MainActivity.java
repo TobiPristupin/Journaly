@@ -4,9 +4,11 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 
 import com.example.journaly.databinding.ActivityMainBinding;
 import com.example.journaly.login.LoginActivity;
+import com.example.journaly.login.LoginManager;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -16,8 +18,17 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
-        goToLogin();
         setContentView(binding.getRoot());
+
+        if (!LoginManager.getInstance().isLoggedIn()){
+            goToLogin();
+        }
+
+        binding.button.setOnClickListener(v -> {
+            LoginManager.getInstance().logout();
+            goToLogin();
+        });
+
     }
 
     private void goToLogin(){
