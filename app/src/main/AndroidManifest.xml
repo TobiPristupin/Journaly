@@ -11,7 +11,8 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Journaly">
+        android:theme="@style/Theme.Journaly"
+        android:name=".MainApplication">
         <activity android:name=".create_screen.CreateActivity"></activity>
         <activity android:name=".login.LoginActivity" />
         <activity android:name=".MainActivity">

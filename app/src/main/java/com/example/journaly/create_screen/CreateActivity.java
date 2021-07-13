@@ -6,10 +6,8 @@ import androidx.core.content.FileProvider;
 import androidx.core.graphics.drawable.RoundedBitmapDrawable;
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
 
-import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -22,14 +20,15 @@ import android.widget.Toast;
 
 import com.example.journaly.R;
 import com.example.journaly.databinding.ActivityCreateBinding;
+import com.example.journaly.login.LoginManager;
+import com.example.journaly.model.CloudStorageManager;
+import com.example.journaly.model.FirebaseRepository;
+import com.example.journaly.model.JournalEntry;
+import com.example.journaly.model.Repository;
 import com.example.journaly.utils.BitmapUtils;
 import com.example.journaly.utils.DateUtils;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -40,9 +39,8 @@ public class CreateActivity extends AppCompatActivity {
     private ActivityCreateBinding binding;
     private static final int REQUEST_IMAGE_CAPTURE_CODE = 1;
     private static final String TAG = "CreateActivity";
-    private String savedPhotoPath;
     private File photoFile = null;
-
+    private FirebaseRepository journalEntryRepository = FirebaseRepository.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,7 +75,7 @@ public class CreateActivity extends AppCompatActivity {
     private void dispatchCameraIntent(){
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         // Create a File reference for future access
-        photoFile = getPhotoFileUri(savedPhotoPath);
+        photoFile = getPhotoFileUri("photo.jpg");
 
         // wrap File object into a content provider
         // required for API >= 24
@@ -108,8 +106,8 @@ public class CreateActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable @org.jetbrains.annotations.Nullable Intent data) {
         if (requestCode == REQUEST_IMAGE_CAPTURE_CODE && resultCode == RESULT_OK) {
-            Bitmap correctRotation = BitmapUtils.rotateBitmapOrientation(photoFile.getAbsolutePath());
-            RoundedBitmapDrawable rounded = RoundedBitmapDrawableFactory.create(getResources(), correctRotation);
+            Bitmap rotated = BitmapUtils.rotateBitmapOrientation(photoFile.getAbsolutePath());
+            RoundedBitmapDrawable rounded = RoundedBitmapDrawableFactory.create(getResources(), rotated);
             rounded.setCornerRadius(100);
             binding.journalImage.setImageDrawable(rounded);
             binding.journalImage.setVisibility(View.VISIBLE);
@@ -118,11 +116,51 @@ public class CreateActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-    private Bitmap compressImage(Bitmap original){
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        original.compress(Bitmap.CompressFormat.JPEG, 0, out);
-        return BitmapFactory.decodeStream(new ByteArrayInputStream(out.toByteArray()));
+    private void saveEntry(){
+        if (!fieldsAreValid()){
+            Toasty.error(this, "Missing fields", Toast.LENGTH_SHORT, true).show();
+            return;
+        }
+
+        String title = binding.titleEdittext.getText().toString();
+        String text = binding.mainTextEdittext.getText().toString();
+        boolean isPublic = binding.publicSwitch.isChecked();
+        int mood = JournalEntry.NEUTRAL_MOOD; //TODO: Sentiment Analysis API
+        boolean hasImage = photoFile != null;
+        long unixTime = System.currentTimeMillis() / 1000L;
+        String userId = LoginManager.getInstance().getCurrentUser().getUid();
+        JournalEntry journalEntry = new JournalEntry(title, text, unixTime, isPublic, mood, hasImage, userId);
+
+        String id = journalEntryRepository.addJournalEntry(journalEntry);
+        if (photoFile != null){
+            uploadImage(id);
+        } else {
+            finish();
+        }
     }
+
+    private void uploadImage(String journalEntryId){
+        CloudStorageManager cloudStorageManager = CloudStorageManager.getInstance();
+        cloudStorageManager.upload(photoFile, journalEntryId, e -> {
+            Log.w(TAG, e);
+            Toasty.error(this, "There was an error uploading the image", Toast.LENGTH_SHORT, true).show();
+        }, task -> {
+            Log.i(TAG, "Successfully uploaded image");
+            finish();
+        }, this);
+    }
+
+    private boolean fieldsAreValid() {
+        String title = binding.titleEdittext.getText().toString();
+        String text = binding.mainTextEdittext.getText().toString();
+        return title.length() > 0 && text.length() > 0;
+    }
+//
+//    private Bitmap compressImage(Bitmap original){
+//        ByteArrayOutputStream out = new ByteArrayOutputStream();
+//        original.compress(Bitmap.CompressFormat.JPEG, 0, out);
+//        return BitmapFactory.decodeStream(new ByteArrayInputStream(out.toByteArray()));
+//    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -134,6 +172,9 @@ public class CreateActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
             finish();
+            return true;
+        } else if (item.getItemId() == R.id.action_save){
+            saveEntry();
             return true;
         }
         return super.onOptionsItemSelected(item);

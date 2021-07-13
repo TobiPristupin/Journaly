@@ -42,6 +42,9 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
     implementation platform('com.google.firebase:firebase-bom:28.2.1')
     implementation 'com.google.firebase:firebase-auth'
+    implementation 'com.google.firebase:firebase-storage'
+    implementation 'com.google.firebase:firebase-database'
+    implementation "io.reactivex.rxjava3:rxjava:3.0.13"
     implementation 'com.github.GrenderG:Toasty:1.5.0'
     implementation 'androidx.preference:preference:1.1.1'
     implementation 'org.jetbrains:annotations:15.0'

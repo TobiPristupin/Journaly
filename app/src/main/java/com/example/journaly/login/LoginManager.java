@@ -2,10 +2,17 @@ package com.example.journaly.login;
 
 import android.app.Activity;
 
+import androidx.annotation.NonNull;
+
+import com.example.journaly.model.FirebaseRepository;
+import com.example.journaly.model.User;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+
+import org.jetbrains.annotations.NotNull;
 
 //Contains all firebase related information for logging in/out, creating users, and getting current user
 public class LoginManager {

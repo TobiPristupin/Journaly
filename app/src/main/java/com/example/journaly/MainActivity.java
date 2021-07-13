@@ -15,9 +15,12 @@ import com.example.journaly.databinding.ActivityMainBinding;
 import com.example.journaly.home_screen.HomeFragment;
 import com.example.journaly.login.LoginActivity;
 import com.example.journaly.login.LoginManager;
+import com.example.journaly.model.FirebaseRepository;
+import com.example.journaly.model.User;
 import com.example.journaly.more_screen.MoreFragment;
 import com.example.journaly.settings_screen.SettingsFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.auth.FirebaseAuth;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -38,6 +41,10 @@ public class MainActivity extends AppCompatActivity {
         if (!LoginManager.getInstance().isLoggedIn()){
             goToLogin();
         }
+
+        //Update user in users database. Explanation of why we are doing this can be found in User class
+        FirebaseRepository firebaseRepository = FirebaseRepository.getInstance();
+        firebaseRepository.addUser(new User(FirebaseAuth.getInstance().getCurrentUser()));
 
         initViews();
     }
