@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".create_screen.CreateActivity">
+    tools:context=".create_screen.CreateActivity"
+    android:background="@color/bg_color">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/create_toolbar"
@@ -19,6 +20,106 @@
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
         app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         app:title="Detail"
-        app:titleTextColor="@android:color/white" />
+        app:titleTextColor="@android:color/white"
+        app:navigationIcon="@drawable/ic_baseline_close_24"/>
+
+    <TextView
+        android:id="@+id/day_number_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        tools:text="13"
+        android:textColor="@color/secondary_text"
+        android:textSize="34sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/create_toolbar" />
+
+    <TextView
+        android:id="@+id/month_and_year_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginBottom="4dp"
+        tools:text="Jul. 2021"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toBottomOf="@+id/day_number_tv"
+        app:layout_constraintStart_toEndOf="@+id/day_number_tv"
+        tools:textStyle="bold" />
+
+    <EditText
+        android:id="@+id/title_edittext"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
+        android:background="@android:color/transparent"
+        android:hint="Title"
+        android:inputType="textPersonName"
+        android:textColor="@color/secondary_text"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/day_number_tv"
+        app:layout_constraintTop_toBottomOf="@+id/day_number_tv" />
+
+    <EditText
+        android:id="@+id/main_text_edittext"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="16dp"
+        android:background="@android:color/transparent"
+        android:gravity="top"
+        android:hint="Write more here..."
+        android:inputType="textMultiLine"
+        android:textColor="@color/secondary_text"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toTopOf="@+id/journal_image"
+        app:layout_constraintEnd_toEndOf="@+id/title_edittext"
+        app:layout_constraintStart_toStartOf="@+id/title_edittext"
+        app:layout_constraintTop_toBottomOf="@+id/title_edittext" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/camera_fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="24dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:backgroundTint="@color/primary_dark"
+        app:tint="@android:color/white"
+        android:src="@drawable/ic_baseline_add_a_photo_24"
+        />
+
+    <ImageView
+        android:id="@+id/journal_image"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="16dp"
+        android:adjustViewBounds="true"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHeight_max="wrap"
+        app:layout_constraintHeight_percent="0.3"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintWidth_max="wrap"
+        app:layout_constraintWidth_percent="0.6"
+        tools:srcCompat="@tools:sample/backgrounds/scenic"
+        tools:visibility="visible" />
+
+    <Switch
+        android:id="@+id/public_switch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:checked="true"
+        android:text="Public"
+        android:textColor="@color/secondary_text"
+        app:layout_constraintBottom_toBottomOf="@+id/day_number_tv"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
