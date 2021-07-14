@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".create_screen.CreateActivity"
-    android:background="@color/bg_color">
+    android:background="@color/journal_entry_color">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/create_toolbar"

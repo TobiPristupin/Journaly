@@ -22,9 +22,9 @@ import com.example.journaly.R;
 import com.example.journaly.databinding.ActivityCreateBinding;
 import com.example.journaly.login.LoginManager;
 import com.example.journaly.model.CloudStorageManager;
-import com.example.journaly.model.FirebaseRepository;
+import com.example.journaly.model.FirebaseJournalRepository;
 import com.example.journaly.model.JournalEntry;
-import com.example.journaly.model.Repository;
+import com.example.journaly.model.JournalRepository;
 import com.example.journaly.utils.BitmapUtils;
 import com.example.journaly.utils.DateUtils;
 
@@ -40,7 +40,7 @@ public class CreateActivity extends AppCompatActivity {
     private static final int REQUEST_IMAGE_CAPTURE_CODE = 1;
     private static final String TAG = "CreateActivity";
     private File photoFile = null;
-    private FirebaseRepository journalEntryRepository = FirebaseRepository.getInstance();
+    private JournalRepository journalRepository = FirebaseJournalRepository.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -131,7 +131,7 @@ public class CreateActivity extends AppCompatActivity {
         String userId = LoginManager.getInstance().getCurrentUser().getUid();
         JournalEntry journalEntry = new JournalEntry(title, text, unixTime, isPublic, mood, hasImage, userId);
 
-        String id = journalEntryRepository.addJournalEntry(journalEntry);
+        String id = journalRepository.add(journalEntry);
         if (photoFile != null){
             uploadImage(id);
         } else {

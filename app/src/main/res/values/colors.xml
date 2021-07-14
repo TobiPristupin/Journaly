@@ -8,6 +8,7 @@
     <color name="secondary_text">#757575</color>
     <color name="icons">#212121</color>
     <color name="divider">#BDBDBD</color>
-    <color name="bg_color">#FDECD3</color>
+    <color name="journal_entry_color">#FDECD3</color>
+    <color name="bg_color">#FAE0BB</color>
 </resources>
 

@@ -1,13 +1,10 @@
 package com.example.journaly;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.MenuItem;
-import android.view.View;
 
 import com.example.journaly.analysis_screen.AnalysisFragment;
 import com.example.journaly.create_screen.CreateActivity;
@@ -15,14 +12,13 @@ import com.example.journaly.databinding.ActivityMainBinding;
 import com.example.journaly.home_screen.HomeFragment;
 import com.example.journaly.login.LoginActivity;
 import com.example.journaly.login.LoginManager;
-import com.example.journaly.model.FirebaseRepository;
+import com.example.journaly.model.FirebaseJournalRepository;
+import com.example.journaly.model.FirebaseUsersRepository;
 import com.example.journaly.model.User;
+import com.example.journaly.model.UsersRepository;
 import com.example.journaly.more_screen.MoreFragment;
 import com.example.journaly.settings_screen.SettingsFragment;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
-
-import org.jetbrains.annotations.NotNull;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -43,8 +39,8 @@ public class MainActivity extends AppCompatActivity {
         }
 
         //Update user in users database. Explanation of why we are doing this can be found in User class
-        FirebaseRepository firebaseRepository = FirebaseRepository.getInstance();
-        firebaseRepository.addUser(new User(FirebaseAuth.getInstance().getCurrentUser()));
+        UsersRepository usersRepository = FirebaseUsersRepository.getInstance();
+        usersRepository.add(new User(FirebaseAuth.getInstance().getCurrentUser()));
 
         initViews();
     }
