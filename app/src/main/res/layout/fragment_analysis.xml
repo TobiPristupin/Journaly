@@ -6,6 +6,10 @@
     tools:context=".analysis_screen.AnalysisFragment"
     android:background="@color/bg_color">
 
+    <include
+        android:id="@+id/analysis_toolbar"
+        layout="@layout/base_toolbar"/>
+
     <!-- TODO: Update blank fragment layout -->
     <TextView
         android:layout_width="match_parent"
