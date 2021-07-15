@@ -37,7 +37,13 @@ public class FirebaseJournalRepository implements JournalRepository {
         return instance;
     }
 
-    public String add(JournalEntry item) {
+    public String addOrUpdate(JournalEntry item) {
+        //it item has id is because it was previosuly inserted in db, so we must update
+        if (item.getId() != null){
+            update(item);
+            return item.getId();
+        }
+
         //make a reference to where the journal will be added. This will generate an ID for us
         DatabaseReference ref = journalDatabaseRef.push();
         String id = ref.getKey();
@@ -52,7 +58,8 @@ public class FirebaseJournalRepository implements JournalRepository {
     }
 
     public void update(JournalEntry item) {
-
+        DatabaseReference ref = journalDatabaseRef.child(item.getId());
+        ref.setValue(item);
     }
 
     public Observable<Map<String, JournalEntry>> fetch() {

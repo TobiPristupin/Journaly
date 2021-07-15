@@ -1,5 +1,6 @@
 package com.example.journaly.home_screen;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -10,12 +11,15 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.journaly.common.JournalEntryAdapter;
+import com.example.journaly.create_screen.CreateActivity;
 import com.example.journaly.databinding.FragmentHomeBinding;
 import com.example.journaly.model.FirebaseJournalRepository;
 import com.example.journaly.model.FirebaseUsersRepository;
 import com.example.journaly.model.JournalEntry;
 import com.example.journaly.model.JournalRepository;
 import com.example.journaly.model.UsersRepository;
+
+import org.parceler.Parcels;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -111,7 +115,9 @@ public class HomeFragment extends Fragment {
     }
 
     private void onJournalItemClick(JournalEntry journalEntry) {
-
+        Intent i = new Intent(getContext(), CreateActivity.class);
+        i.putExtra(CreateActivity.JOURNAL_ENTRY_INTENT_KEY, Parcels.wrap(journalEntry));
+        startActivity(i);
     }
 
 }

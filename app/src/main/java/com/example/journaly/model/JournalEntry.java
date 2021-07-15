@@ -4,6 +4,10 @@ import android.net.Uri;
 
 import androidx.annotation.Nullable;
 
+import org.parceler.Parcel;
+import org.parceler.ParcelConstructor;
+
+@Parcel(Parcel.Serialization.BEAN)
 public class JournalEntry {
 
     //Using int constants instead of an enum since firebase cannot serialize enums

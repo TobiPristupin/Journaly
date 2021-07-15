@@ -28,13 +28,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        tools:text="13"
+        android:layout_marginTop="24dp"
         android:textColor="@color/secondary_text"
         android:textSize="34sp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/create_toolbar" />
+        app:layout_constraintTop_toBottomOf="@+id/create_toolbar"
+        tools:text="13" />
 
     <TextView
         android:id="@+id/month_and_year_tv"
@@ -42,10 +42,11 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginBottom="4dp"
-        tools:text="Jul. 2021"
         android:textSize="18sp"
+        app:layout_constraintBaseline_toBaselineOf="@id/day_number_tv"
         app:layout_constraintBottom_toBottomOf="@+id/day_number_tv"
         app:layout_constraintStart_toEndOf="@+id/day_number_tv"
+        tools:text="Jul. 2021"
         tools:textStyle="bold" />
 
     <EditText
@@ -94,7 +95,7 @@
         android:src="@drawable/ic_baseline_add_a_photo_24"
         />
 
-    <ImageView
+    <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/journal_image"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -109,7 +110,8 @@
         app:layout_constraintWidth_max="wrap"
         app:layout_constraintWidth_percent="0.6"
         tools:srcCompat="@tools:sample/backgrounds/scenic"
-        tools:visibility="visible" />
+        tools:visibility="visible"
+        app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize10Percent"/>
 
     <Switch
         android:id="@+id/public_switch"
@@ -117,9 +119,20 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:checked="true"
-        android:text="Public"
+        android:text="Public:"
         android:textColor="@color/secondary_text"
-        app:layout_constraintBottom_toBottomOf="@+id/day_number_tv"
+        app:layout_constraintBottom_toBottomOf="@+id/month_and_year_tv"
         app:layout_constraintEnd_toEndOf="parent" />
+
+    <ImageView
+        android:id="@+id/create_mood_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:layout_marginEnd="16dp"
+        android:adjustViewBounds="true"
+        app:layout_constraintBottom_toBottomOf="@+id/public_switch"
+        app:layout_constraintEnd_toStartOf="@+id/public_switch"
+        app:layout_constraintTop_toTopOf="@+id/public_switch"
+        app:srcCompat="@drawable/icons8_happy_48" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

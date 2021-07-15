@@ -3,8 +3,6 @@ package com.example.journaly.create_screen;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
-import androidx.core.graphics.drawable.RoundedBitmapDrawable;
-import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -16,8 +14,10 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.example.journaly.R;
 import com.example.journaly.databinding.ActivityCreateBinding;
 import com.example.journaly.login.LoginManager;
@@ -28,14 +28,22 @@ import com.example.journaly.model.JournalRepository;
 import com.example.journaly.utils.BitmapUtils;
 import com.example.journaly.utils.DateUtils;
 
+import org.parceler.Parcels;
+
 import java.io.File;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Map;
 
 import es.dmoral.toasty.Toasty;
 import io.reactivex.rxjava3.annotations.NonNull;
-import io.reactivex.rxjava3.core.SingleObserver;
+import io.reactivex.rxjava3.core.Completable;
+import io.reactivex.rxjava3.core.Maybe;
+import io.reactivex.rxjava3.core.MaybeEmitter;
+import io.reactivex.rxjava3.core.MaybeObserver;
+import io.reactivex.rxjava3.core.MaybeOnSubscribe;
 import io.reactivex.rxjava3.disposables.Disposable;
+import io.reactivex.rxjava3.functions.Action;
 import io.reactivex.rxjava3.functions.Consumer;
 
 public class CreateActivity extends AppCompatActivity {
@@ -45,12 +53,22 @@ public class CreateActivity extends AppCompatActivity {
     private static final String TAG = "CreateActivity";
     private File photoFile = null;
     private JournalRepository journalRepository = FirebaseJournalRepository.getInstance();
+    public static final String JOURNAL_ENTRY_INTENT_KEY = "entry";
+    private boolean editMode = false; //false by default, may be changed to true in the future
+    @Nullable
+    private JournalEntry intentJournalEntry; //pased from an intent
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityCreateBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        Intent intent = getIntent();
+        if (intent.hasExtra(JOURNAL_ENTRY_INTENT_KEY)){
+            editMode = true;
+            intentJournalEntry = Parcels.unwrap(intent.getParcelableExtra(JOURNAL_ENTRY_INTENT_KEY));
+        }
 
         initViews();
     }
@@ -59,6 +77,10 @@ public class CreateActivity extends AppCompatActivity {
         initToolbar();
         initDateViews();
         initCamera();
+
+        if (editMode){
+            populateViewsWithEditData();
+        }
     }
 
     private void initToolbar() {
@@ -74,6 +96,26 @@ public class CreateActivity extends AppCompatActivity {
 
     private void initCamera(){
         binding.cameraFab.setOnClickListener(v -> dispatchCameraIntent());
+    }
+
+    private void populateViewsWithEditData(){
+        Map<Integer, Integer> moodToDrawable =  Map.of(
+                JournalEntry.NEGATIVE_MOOD, R.drawable.icons8_sad_48,
+                JournalEntry.NEUTRAL_MOOD, R.drawable.icons8_happy_48,
+                JournalEntry.POSITIVE_MOOD, R.drawable.icons8_happy_48
+        );
+
+        binding.createMoodIcon.setImageResource(moodToDrawable.get(intentJournalEntry.getMood()));
+        binding.dayNumberTv.setText(DateUtils.dayOfMonth(intentJournalEntry.getDate()));
+        binding.monthAndYearTv.setText(DateUtils.monthAndYear(intentJournalEntry.getDate()));
+        binding.titleEdittext.setText(intentJournalEntry.getTitle());
+        binding.mainTextEdittext.setText(intentJournalEntry.getText());
+        binding.publicSwitch.setChecked(intentJournalEntry.isPublic());
+
+        if (intentJournalEntry.getContainsImage()){
+            binding.journalImage.setVisibility(View.VISIBLE);
+            Glide.with(this).load(intentJournalEntry.getImageUri()).into(binding.journalImage);
+        }
     }
 
     private void dispatchCameraIntent(){
@@ -111,9 +153,7 @@ public class CreateActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable @org.jetbrains.annotations.Nullable Intent data) {
         if (requestCode == REQUEST_IMAGE_CAPTURE_CODE && resultCode == RESULT_OK) {
             Bitmap rotated = BitmapUtils.rotateBitmapOrientation(photoFile.getAbsolutePath());
-            RoundedBitmapDrawable rounded = RoundedBitmapDrawableFactory.create(getResources(), rotated);
-            rounded.setCornerRadius(100);
-            binding.journalImage.setImageDrawable(rounded);
+            binding.journalImage.setImageBitmap(rotated);
             binding.journalImage.setVisibility(View.VISIBLE);
         }
 
@@ -133,24 +173,46 @@ public class CreateActivity extends AppCompatActivity {
         long unixTime = System.currentTimeMillis();
         String userId = LoginManager.getInstance().getCurrentUser().getUid();
 
-        if (photoFile != null){
+        uploadPhotoIfNeeded().subscribe(
+                (Uri uri) -> { //on success uploading image
+                    Log.i(TAG, "Successfully uploaded image");
+                    JournalEntry journalEntry = new JournalEntry(title, text, unixTime, isPublic, mood, userId, true, uri.toString());
+                    pushToDatabase(journalEntry);
+                    finish();
+                },
+                (Throwable throwable) -> { //on error uploading image
+                    Log.w(TAG, throwable);
+                    Toasty.error(CreateActivity.this, "There was an error uploading the image", Toast.LENGTH_SHORT, true).show();
+                },
+                () -> { //no image uploaded
+                    JournalEntry journalEntry = new JournalEntry(title, text, unixTime, isPublic, mood, userId, false, null);
+                    pushToDatabase(journalEntry);
+                    finish();
+                }
+        );
+    }
+
+    private Maybe<Uri> uploadPhotoIfNeeded(){
+        return Maybe.create(emitter -> {
+            if (photoFile == null){
+                emitter.onComplete();
+                return;
+            }
+
             CloudStorageManager cloudStorageManager = CloudStorageManager.getInstance();
             cloudStorageManager.upload(photoFile, this).subscribe(uri -> {
-                Log.i(TAG, "Successfully uploaded image");
-                pushToDatabase(new JournalEntry(title, text, unixTime, isPublic, mood, userId, true, uri.toString()));
-                finish();
+                emitter.onSuccess(uri);
             }, throwable -> {
-                Log.w(TAG, throwable);
-                Toasty.error(CreateActivity.this, "There was an error uploading the image", Toast.LENGTH_SHORT, true).show();
+                emitter.onError(throwable);
             });
-        } else {
-            pushToDatabase(new JournalEntry(title, text, unixTime, isPublic, mood, userId, false, null));
-            finish();
-        }
+        });
     }
 
     private void pushToDatabase(JournalEntry entry){
-        journalRepository.add(entry);
+        if (editMode){
+            entry.setId(intentJournalEntry.getId());
+        }
+        journalRepository.addOrUpdate(entry);
     }
 
     private boolean fieldsAreValid() {

@@ -72,9 +72,9 @@ public class JournalEntryAdapter extends RecyclerView.Adapter<JournalEntryAdapte
 
         private JournalEntryItemBinding binding;
         private final Map<Integer, Integer> moodToDrawable =  Map.of(
-                JournalEntry.NEGATIVE_MOOD, R.drawable.icons8_sad_64,
-                JournalEntry.NEUTRAL_MOOD, R.drawable.icons8_neutral_64,
-                JournalEntry.POSITIVE_MOOD, R.drawable.icons8_happy_64
+                JournalEntry.NEGATIVE_MOOD, R.drawable.icons8_sad_48,
+                JournalEntry.NEUTRAL_MOOD, R.drawable.icons8_happy_48,
+                JournalEntry.POSITIVE_MOOD, R.drawable.icons8_happy_48
         );
 
         public ViewHolder(@NonNull @NotNull View itemView) {
@@ -97,6 +97,10 @@ public class JournalEntryAdapter extends RecyclerView.Adapter<JournalEntryAdapte
             } else {
                 binding.postImage.setVisibility(View.INVISIBLE);
             }
+
+            binding.getRoot().setOnClickListener(v -> {
+                clickListener.onEntryClick(getAdapterPosition());
+            });
         }
 
         private void initViewsDependentOnUser(JournalEntry entry) {
@@ -109,7 +113,7 @@ public class JournalEntryAdapter extends RecyclerView.Adapter<JournalEntryAdapte
                 @Override
                 public void onSuccess(@io.reactivex.rxjava3.annotations.NonNull User user) {
                     Glide.with(context).load(user.getPhotoUri()).fallback(R.drawable.default_profile).into(binding.entryPfp);
-                    binding.entryUsername.setText(user.getEmail());
+                    binding.entryUsername.setText(user.getDisplayName());
                 }
 
                 @Override

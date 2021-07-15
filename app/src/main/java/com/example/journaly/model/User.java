@@ -20,21 +20,19 @@ public class User {
     @Nullable
     private String photoUri;
     private String email;
-    private String displayName;
 
     public User(){
         //empty constructor for firebase
     }
 
-    public User(String uid, String photoUri, String email, String displayName) {
+    public User(String uid, String photoUri, String email) {
         this.uid = uid;
         this.photoUri = photoUri;
         this.email = email;
-        this.displayName = displayName;
     }
 
     public User(FirebaseUser user){
-        this(user.getUid(), null, user.getEmail(), user.getDisplayName());
+        this(user.getUid(), null, user.getEmail());
     }
 
     public String getUid() {
@@ -61,11 +59,9 @@ public class User {
         this.email = email;
     }
 
-    public String getDisplayName() {
-        return displayName;
+    public String getDisplayName(){
+        //emails are of the form username@journaly.com, so we must extract username
+        return this.email.split("@")[0];
     }
 
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
-    }
 }
