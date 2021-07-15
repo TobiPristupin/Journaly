@@ -1,8 +1,10 @@
 package com.example.journaly;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -18,6 +20,8 @@ import com.example.journaly.model.User;
 import com.example.journaly.model.UsersRepository;
 import com.example.journaly.more_screen.MoreFragment;
 import com.example.journaly.settings_screen.SettingsFragment;
+import com.github.nisrulz.sensey.Sensey;
+import com.github.nisrulz.sensey.ShakeDetector;
 import com.google.firebase.auth.FirebaseAuth;
 
 import io.reactivex.rxjava3.functions.Consumer;
@@ -44,7 +48,35 @@ public class MainActivity extends AppCompatActivity {
         UsersRepository usersRepository = FirebaseUsersRepository.getInstance();
         usersRepository.add(new User(FirebaseAuth.getInstance().getCurrentUser()));
 
+        initShakeDetection();
         initViews();
+    }
+
+    private void initShakeDetection() {
+        Sensey.getInstance().init(this);
+        ShakeDetector.ShakeListener shakeListener = new ShakeDetector.ShakeListener() {
+            @Override
+            public void onShakeDetected() {
+            }
+
+            @Override
+            public void onShakeStopped() {
+                showShakeDetectedDialog();
+            }
+        };
+        Sensey.getInstance().startShakeDetection(4, 500, shakeListener);
+    }
+
+    private void showShakeDetectedDialog() {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setMessage("It looks li1`ke you're shaking your phone. Would you like to write a journal entry?");
+        builder.setNegativeButton("No", (dialogInterface, i) -> dialogInterface.cancel());
+        builder.setPositiveButton("Yes", (dialog, which) -> {
+            Intent i = new Intent(MainActivity.this, CreateActivity.class);
+            i.putExtra(CreateActivity.STATE_INTENT_KEY, CreateActivity.State.CREATE);
+            startActivity(i);
+        });
+        builder.create().show();
     }
 
     private void initViews() {
@@ -101,5 +133,11 @@ public class MainActivity extends AppCompatActivity {
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Sensey.getInstance().stop();
     }
 }

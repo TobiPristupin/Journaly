@@ -1,9 +1,11 @@
 package com.example.journaly.create_screen;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -233,14 +235,25 @@ public class CreateActivity extends AppCompatActivity {
 
     private void deleteEntry() {
         assert(state == State.EDIT); //delete functionality should not even be enabled if we're not in edit mode
-        journalRepository.delete(intentJournalEntry);
-        finish();
+        showConfirmDeleteDialog((dialog, which) -> {
+            journalRepository.delete(intentJournalEntry);
+            finish();
+        });
+
     }
 
     private boolean fieldsAreValid() {
         String title = binding.titleEdittext.getText().toString();
         String text = binding.mainTextEdittext.getText().toString();
         return title.length() > 0 && text.length() > 0;
+    }
+
+    private void showConfirmDeleteDialog(DialogInterface.OnClickListener onConfirm){
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Are you sure you want to delete this journal entry?");
+        builder.setNegativeButton("Cancel", (dialogInterface, i) -> dialogInterface.cancel());
+        builder.setPositiveButton("Delete", onConfirm);
+        builder.create().show();
     }
 
     @Override

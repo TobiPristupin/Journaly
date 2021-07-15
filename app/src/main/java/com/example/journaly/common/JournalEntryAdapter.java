@@ -95,7 +95,7 @@ public class JournalEntryAdapter extends RecyclerView.Adapter<JournalEntryAdapte
                 binding.postImage.setVisibility(View.VISIBLE);
                 Glide.with(context).load(entry.getImageUri()).into(binding.postImage);
             } else {
-                binding.postImage.setVisibility(View.INVISIBLE);
+                binding.postImage.setVisibility(View.GONE);
             }
 
             binding.getRoot().setOnClickListener(v -> {
