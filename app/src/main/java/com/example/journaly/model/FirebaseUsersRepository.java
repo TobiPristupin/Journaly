@@ -12,7 +12,9 @@ import org.jetbrains.annotations.NotNull;
 
 import io.reactivex.rxjava3.annotations.NonNull;
 import io.reactivex.rxjava3.core.Single;
+import io.reactivex.rxjava3.core.SingleEmitter;
 import io.reactivex.rxjava3.core.SingleObserver;
+import io.reactivex.rxjava3.core.SingleOnSubscribe;
 
 public class FirebaseUsersRepository implements UsersRepository {
 
@@ -38,22 +40,17 @@ public class FirebaseUsersRepository implements UsersRepository {
     }
 
     public Single<User> userFromId(String uid){
-        return new Single<User>() {
+        return Single.create(emitter -> userDatabaseRef.child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            protected void subscribeActual(@NonNull SingleObserver<? super User> observer) {
-                userDatabaseRef.child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@androidx.annotation.NonNull @NotNull DataSnapshot snapshot) {
-                        observer.onSuccess(snapshot.getValue(User.class));
-                    }
-
-                    @Override
-                    public void onCancelled(@androidx.annotation.NonNull @NotNull DatabaseError error) {
-                        observer.onError(error.toException());
-                    }
-                });
+            public void onDataChange(@androidx.annotation.NonNull @NotNull DataSnapshot snapshot) {
+                emitter.onSuccess(snapshot.getValue(User.class));
             }
-        };
+
+            @Override
+            public void onCancelled(@androidx.annotation.NonNull @NotNull DatabaseError error) {
+                emitter.onError(error.toException());
+            }
+        }));
     }
 
 }

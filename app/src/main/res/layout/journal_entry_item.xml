@@ -96,12 +96,14 @@
             android:layout_marginStart="8dp"
             android:layout_marginTop="16dp"
             android:adjustViewBounds="true"
+            android:visibility="gone"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/entry_text"
             app:layout_constraintWidth_max="wrap"
             app:layout_constraintWidth_percent="0.4"
             app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize10Percent"
-            tools:srcCompat="@tools:sample/backgrounds/scenic" />
+            tools:srcCompat="@tools:sample/backgrounds/scenic"
+            tools:visibility="visible" />
 
         <ImageView
             android:id="@+id/public_icon"

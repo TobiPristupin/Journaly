@@ -1,5 +1,9 @@
 package com.example.journaly.model;
 
+import android.net.Uri;
+
+import androidx.annotation.Nullable;
+
 public class JournalEntry {
 
     //Using int constants instead of an enum since firebase cannot serialize enums
@@ -15,12 +19,14 @@ public class JournalEntry {
     private boolean containsImage;
     private int mood;
     private String userId;
+    @Nullable
+    private String imageUri;
 
     public JournalEntry(){
         //Empty constructor required for firebase
     }
 
-    public JournalEntry(String title, String text, long date, boolean isPublic, int mood, boolean containsImage, String userId) {
+    public JournalEntry(String title, String text, long date, boolean isPublic, int mood, String userId, boolean containsImage, @org.jetbrains.annotations.Nullable String imageUri) {
         this.title = title;
         this.text = text;
         this.id = null; //no id since it is generated afterwards by the database
@@ -29,6 +35,7 @@ public class JournalEntry {
         this.mood = mood;
         this.containsImage = containsImage;
         this.userId = userId;
+        this.imageUri = imageUri;
     }
 
     public String getTitle() {
@@ -79,7 +86,7 @@ public class JournalEntry {
         this.mood = mood;
     }
 
-    public boolean isContainsImage() {
+    public boolean getContainsImage() {
         return containsImage;
     }
 
@@ -93,5 +100,13 @@ public class JournalEntry {
 
     public void setUserId(String userId) {
         this.userId = userId;
+    }
+
+    public @org.jetbrains.annotations.Nullable String getImageUri() {
+        return imageUri;
+    }
+
+    public void setImageUri(@org.jetbrains.annotations.Nullable String imageUri) {
+        this.imageUri = imageUri;
     }
 }

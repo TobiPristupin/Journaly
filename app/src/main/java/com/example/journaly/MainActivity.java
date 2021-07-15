@@ -20,6 +20,8 @@ import com.example.journaly.more_screen.MoreFragment;
 import com.example.journaly.settings_screen.SettingsFragment;
 import com.google.firebase.auth.FirebaseAuth;
 
+import io.reactivex.rxjava3.functions.Consumer;
+
 public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;

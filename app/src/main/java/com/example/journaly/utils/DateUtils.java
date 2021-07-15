@@ -12,8 +12,16 @@ public class DateUtils {
         return formatter.format(date);
     }
 
+    public static String dayOfMonth(long unixTime){
+        return dayOfMonth(new Date(unixTime));
+    }
+
     public static String monthAndYear(Date date){
         DateFormat formatter = new SimpleDateFormat("MMM'.' yyyy", Locale.US);
         return formatter.format(date);
+    }
+
+    public static String monthAndYear(long unixTime){
+        return monthAndYear(new Date(unixTime));
     }
 }

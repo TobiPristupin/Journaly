@@ -33,6 +33,10 @@ import java.util.Calendar;
 import java.util.Date;
 
 import es.dmoral.toasty.Toasty;
+import io.reactivex.rxjava3.annotations.NonNull;
+import io.reactivex.rxjava3.core.SingleObserver;
+import io.reactivex.rxjava3.disposables.Disposable;
+import io.reactivex.rxjava3.functions.Consumer;
 
 public class CreateActivity extends AppCompatActivity {
 
@@ -126,28 +130,27 @@ public class CreateActivity extends AppCompatActivity {
         String text = binding.mainTextEdittext.getText().toString();
         boolean isPublic = binding.publicSwitch.isChecked();
         int mood = JournalEntry.NEUTRAL_MOOD; //TODO: Sentiment Analysis API
-        boolean hasImage = photoFile != null;
-        long unixTime = System.currentTimeMillis() / 1000L;
+        long unixTime = System.currentTimeMillis();
         String userId = LoginManager.getInstance().getCurrentUser().getUid();
-        JournalEntry journalEntry = new JournalEntry(title, text, unixTime, isPublic, mood, hasImage, userId);
 
-        String id = journalRepository.add(journalEntry);
         if (photoFile != null){
-            uploadImage(id);
+            CloudStorageManager cloudStorageManager = CloudStorageManager.getInstance();
+            cloudStorageManager.upload(photoFile, this).subscribe(uri -> {
+                Log.i(TAG, "Successfully uploaded image");
+                pushToDatabase(new JournalEntry(title, text, unixTime, isPublic, mood, userId, true, uri.toString()));
+                finish();
+            }, throwable -> {
+                Log.w(TAG, throwable);
+                Toasty.error(CreateActivity.this, "There was an error uploading the image", Toast.LENGTH_SHORT, true).show();
+            });
         } else {
+            pushToDatabase(new JournalEntry(title, text, unixTime, isPublic, mood, userId, false, null));
             finish();
         }
     }
 
-    private void uploadImage(String journalEntryId){
-        CloudStorageManager cloudStorageManager = CloudStorageManager.getInstance();
-        cloudStorageManager.upload(photoFile, journalEntryId, e -> {
-            Log.w(TAG, e);
-            Toasty.error(this, "There was an error uploading the image", Toast.LENGTH_SHORT, true).show();
-        }, task -> {
-            Log.i(TAG, "Successfully uploaded image");
-            finish();
-        }, this);
+    private void pushToDatabase(JournalEntry entry){
+        journalRepository.add(entry);
     }
 
     private boolean fieldsAreValid() {
