@@ -54,7 +54,8 @@ public class FirebaseJournalRepository implements JournalRepository {
     }
 
     public void delete(JournalEntry item) {
-
+        DatabaseReference ref = journalDatabaseRef.child(item.getId());
+        ref.setValue(null);
     }
 
     public void update(JournalEntry item) {

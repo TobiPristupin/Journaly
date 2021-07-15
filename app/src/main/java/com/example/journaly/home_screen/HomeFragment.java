@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.example.journaly.common.JournalEntryAdapter;
 import com.example.journaly.create_screen.CreateActivity;
 import com.example.journaly.databinding.FragmentHomeBinding;
+import com.example.journaly.login.LoginManager;
 import com.example.journaly.model.FirebaseJournalRepository;
 import com.example.journaly.model.FirebaseUsersRepository;
 import com.example.journaly.model.JournalEntry;
@@ -93,7 +94,10 @@ public class HomeFragment extends Fragment {
                     //observable of one item, that item being a map containing all journal entries. We
                     //could use observableToIteratable, then filter, then toList, but that introduces some
                     //other issues explained here: https://github.com/ReactiveX/RxJava/issues/3861.
-                    return stringJournalEntryMap.values().stream().filter(journalEntry -> true).collect(Collectors.toList());
+                    return stringJournalEntryMap.values().stream()
+                            .filter(journalEntry -> true)
+                            .sorted()
+                            .collect(Collectors.toList());
                 })
                 .subscribe(filteredJournalEntries -> {
                     displayedJournals.clear();
@@ -116,6 +120,15 @@ public class HomeFragment extends Fragment {
 
     private void onJournalItemClick(JournalEntry journalEntry) {
         Intent i = new Intent(getContext(), CreateActivity.class);
+
+        CreateActivity.State state;
+        if (LoginManager.getInstance().getCurrentUser().getUid().equals(journalEntry.getUserId())){
+            state = CreateActivity.State.EDIT;
+        } else {
+            state = CreateActivity.State.VIEW;
+        }
+
+        i.putExtra(CreateActivity.STATE_INTENT_KEY, state);
         i.putExtra(CreateActivity.JOURNAL_ENTRY_INTENT_KEY, Parcels.wrap(journalEntry));
         startActivity(i);
     }

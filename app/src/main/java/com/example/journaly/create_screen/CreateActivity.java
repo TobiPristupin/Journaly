@@ -14,7 +14,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
@@ -28,6 +27,7 @@ import com.example.journaly.model.JournalRepository;
 import com.example.journaly.utils.BitmapUtils;
 import com.example.journaly.utils.DateUtils;
 
+import org.jetbrains.annotations.NotNull;
 import org.parceler.Parcels;
 
 import java.io.File;
@@ -36,27 +36,28 @@ import java.util.Date;
 import java.util.Map;
 
 import es.dmoral.toasty.Toasty;
-import io.reactivex.rxjava3.annotations.NonNull;
-import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Maybe;
-import io.reactivex.rxjava3.core.MaybeEmitter;
-import io.reactivex.rxjava3.core.MaybeObserver;
-import io.reactivex.rxjava3.core.MaybeOnSubscribe;
-import io.reactivex.rxjava3.disposables.Disposable;
-import io.reactivex.rxjava3.functions.Action;
-import io.reactivex.rxjava3.functions.Consumer;
 
 public class CreateActivity extends AppCompatActivity {
+
+    //a state for this activity must be passed by the calling intent.
+    public enum State {
+        CREATE, //creating a new entry
+        EDIT, //editing a new entry (assumes current user is owner of entry being edited)
+        VIEW //viewing an entry, when current user != owner of entry
+    }
 
     private ActivityCreateBinding binding;
     private static final int REQUEST_IMAGE_CAPTURE_CODE = 1;
     private static final String TAG = "CreateActivity";
     private File photoFile = null;
     private JournalRepository journalRepository = FirebaseJournalRepository.getInstance();
+    public static final String STATE_INTENT_KEY = "state";
     public static final String JOURNAL_ENTRY_INTENT_KEY = "entry";
-    private boolean editMode = false; //false by default, may be changed to true in the future
     @Nullable
-    private JournalEntry intentJournalEntry; //pased from an intent
+    private JournalEntry intentJournalEntry; //pased from intent
+    @NotNull
+    private State state; //passed from intent
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,22 +65,26 @@ public class CreateActivity extends AppCompatActivity {
         binding = ActivityCreateBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        Intent intent = getIntent();
-        if (intent.hasExtra(JOURNAL_ENTRY_INTENT_KEY)){
-            editMode = true;
-            intentJournalEntry = Parcels.unwrap(intent.getParcelableExtra(JOURNAL_ENTRY_INTENT_KEY));
-        }
-
+        extractDataFromIntent();
         initViews();
     }
+
+    private void extractDataFromIntent() {
+        Intent intent = getIntent();
+        state = (State) intent.getSerializableExtra(STATE_INTENT_KEY);
+        if (state == State.EDIT || state == State.VIEW){
+            intentJournalEntry = Parcels.unwrap(intent.getParcelableExtra(JOURNAL_ENTRY_INTENT_KEY));
+        }
+    }
+
 
     private void initViews(){
         initToolbar();
         initDateViews();
         initCamera();
 
-        if (editMode){
-            populateViewsWithEditData();
+        if (state == State.EDIT || state == State.VIEW){
+            populateViewsWithIntentData();
         }
     }
 
@@ -98,7 +103,7 @@ public class CreateActivity extends AppCompatActivity {
         binding.cameraFab.setOnClickListener(v -> dispatchCameraIntent());
     }
 
-    private void populateViewsWithEditData(){
+    private void populateViewsWithIntentData(){
         Map<Integer, Integer> moodToDrawable =  Map.of(
                 JournalEntry.NEGATIVE_MOOD, R.drawable.icons8_sad_48,
                 JournalEntry.NEUTRAL_MOOD, R.drawable.icons8_happy_48,
@@ -115,6 +120,14 @@ public class CreateActivity extends AppCompatActivity {
         if (intentJournalEntry.getContainsImage()){
             binding.journalImage.setVisibility(View.VISIBLE);
             Glide.with(this).load(intentJournalEntry.getImageUri()).into(binding.journalImage);
+        }
+
+        if (state == State.VIEW){
+            //Prevent any type of input, only display data
+            binding.mainTextEdittext.setFocusable(false);
+            binding.titleEdittext.setFocusable(false);
+            binding.publicSwitch.setEnabled(false);
+            binding.cameraFab.setVisibility(View.GONE);
         }
     }
 
@@ -161,6 +174,9 @@ public class CreateActivity extends AppCompatActivity {
     }
 
     private void saveEntry(){
+        //saving functionality shouldn't be enabled if we're just viewing
+        assert state == State.CREATE || state == State.EDIT;
+
         if (!fieldsAreValid()){
             Toasty.error(this, "Missing fields", Toast.LENGTH_SHORT, true).show();
             return;
@@ -209,10 +225,16 @@ public class CreateActivity extends AppCompatActivity {
     }
 
     private void pushToDatabase(JournalEntry entry){
-        if (editMode){
+        if (state == State.EDIT){
             entry.setId(intentJournalEntry.getId());
         }
         journalRepository.addOrUpdate(entry);
+    }
+
+    private void deleteEntry() {
+        assert(state == State.EDIT); //delete functionality should not even be enabled if we're not in edit mode
+        journalRepository.delete(intentJournalEntry);
+        finish();
     }
 
     private boolean fieldsAreValid() {
@@ -220,17 +242,22 @@ public class CreateActivity extends AppCompatActivity {
         String text = binding.mainTextEdittext.getText().toString();
         return title.length() > 0 && text.length() > 0;
     }
-//
-//    private Bitmap compressImage(Bitmap original){
-//        ByteArrayOutputStream out = new ByteArrayOutputStream();
-//        original.compress(Bitmap.CompressFormat.JPEG, 0, out);
-//        return BitmapFactory.decodeStream(new ByteArrayInputStream(out.toByteArray()));
-//    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.create_toolbar_menu, menu);
         return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        MenuItem delete = menu.findItem(R.id.action_delete);
+        MenuItem save = menu.findItem(R.id.action_save);
+
+        delete.setVisible(state == State.EDIT);
+        save.setVisible(state == State.CREATE || state == State.EDIT);
+
+        return super.onPrepareOptionsMenu(menu);
     }
 
     @Override
@@ -240,6 +267,9 @@ public class CreateActivity extends AppCompatActivity {
             return true;
         } else if (item.getItemId() == R.id.action_save){
             saveEntry();
+            return true;
+        } else if (item.getItemId() == R.id.action_delete){
+            deleteEntry();
             return true;
         }
         return super.onOptionsItemSelected(item);

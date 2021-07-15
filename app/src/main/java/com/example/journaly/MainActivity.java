@@ -60,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
     private void initFab() {
         binding.createJournalFab.setOnClickListener(v -> {
             Intent i = new Intent(MainActivity.this, CreateActivity.class);
+            i.putExtra(CreateActivity.STATE_INTENT_KEY, CreateActivity.State.CREATE);
             startActivity(i);
         });
     }

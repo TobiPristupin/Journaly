@@ -8,7 +8,7 @@ import org.parceler.Parcel;
 import org.parceler.ParcelConstructor;
 
 @Parcel(Parcel.Serialization.BEAN)
-public class JournalEntry {
+public class JournalEntry implements Comparable<JournalEntry> {
 
     //Using int constants instead of an enum since firebase cannot serialize enums
     public static final int POSITIVE_MOOD = 1;
@@ -112,5 +112,11 @@ public class JournalEntry {
 
     public void setImageUri(@org.jetbrains.annotations.Nullable String imageUri) {
         this.imageUri = imageUri;
+    }
+
+    @Override
+    public int compareTo(JournalEntry o) {
+        //bigger date timestamp -> newer post -> considered smaller
+        return (int) (o.date - this.date);
     }
 }
