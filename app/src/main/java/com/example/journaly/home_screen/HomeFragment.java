@@ -10,7 +10,9 @@ import android.view.ViewGroup;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.example.journaly.R;
 import com.example.journaly.common.JournalEntryAdapter;
+import com.example.journaly.common.JournalsListViewerFragment;
 import com.example.journaly.create_screen.CreateActivity;
 import com.example.journaly.databinding.FragmentHomeBinding;
 import com.example.journaly.login.LoginManager;
@@ -38,12 +40,6 @@ public class HomeFragment extends Fragment {
 
     public static final String TAG = "HomeFragment";
     private FragmentHomeBinding binding;
-    private JournalEntryAdapter journalAdapter;
-    private List<JournalEntry> allJournals = new ArrayList<>(); //holds all loaded journals
-    private List<JournalEntry> displayedJournals = new ArrayList<>(); //holds all currently displayed journals according to filtering
-    private JournalRepository journalRepository = FirebaseJournalRepository.getInstance();
-    private UsersRepository usersRepository = FirebaseUsersRepository.getInstance();
-    private Disposable dataSubscription;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -56,6 +52,15 @@ public class HomeFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (savedInstanceState == null){
+            Fragment journalsListViewerFragment = JournalsListViewerFragment.newInstance();
+
+            getParentFragmentManager()
+                    .beginTransaction()
+                    .setReorderingAllowed(true)
+                    .add(R.id.home_fragment_container_view, journalsListViewerFragment)
+                    .commit();
+        }
     }
 
     @Override
@@ -63,74 +68,9 @@ public class HomeFragment extends Fragment {
                              Bundle savedInstanceState) {
         binding = FragmentHomeBinding.inflate(inflater, container, false);
 
-        initViews();
-        subscribeToData();
 
         return binding.getRoot();
     }
 
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        if (dataSubscription != null) {
-            dataSubscription.dispose();
-        }
-    }
-
-    private void subscribeToData() {
-        journalRepository.fetch()
-                .map((Function<Map<String, JournalEntry>, List<JournalEntry>>) stringJournalEntryMap -> new ArrayList<>(stringJournalEntryMap.values()))
-                .subscribe(journalEntries -> {
-                    allJournals.clear();
-                    allJournals.addAll(journalEntries);
-                }, throwable -> {
-                    Log.w(TAG, throwable);
-                });
-
-        journalRepository.fetch()
-                .map(stringJournalEntryMap -> {
-                    //why are we using Java's stream filter instead of RxJava filter? Because RxJava
-                    //filter operates only on an observable of items, and in this case we have an
-                    //observable of one item, that item being a map containing all journal entries. We
-                    //could use observableToIteratable, then filter, then toList, but that introduces some
-                    //other issues explained here: https://github.com/ReactiveX/RxJava/issues/3861.
-                    return stringJournalEntryMap.values().stream()
-                            .filter(journalEntry -> true)
-                            .sorted()
-                            .collect(Collectors.toList());
-                })
-                .subscribe(filteredJournalEntries -> {
-                    displayedJournals.clear();
-                    displayedJournals.addAll(filteredJournalEntries);
-                    journalAdapter.notifyDataSetChanged();
-                }, throwable -> Log.w(TAG, throwable));
-    }
-
-    private void initViews() {
-        initRecyclerView();
-    }
-
-    private void initRecyclerView() {
-        journalAdapter = new JournalEntryAdapter(displayedJournals, usersRepository,
-                position -> onJournalItemClick(displayedJournals.get(position)), getContext());
-        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
-        binding.entriesRecyclerview.setAdapter(journalAdapter);
-        binding.entriesRecyclerview.setLayoutManager(layoutManager);
-    }
-
-    private void onJournalItemClick(JournalEntry journalEntry) {
-        Intent i = new Intent(getContext(), CreateActivity.class);
-
-        CreateActivity.State state;
-        if (LoginManager.getInstance().getCurrentUser().getUid().equals(journalEntry.getUserId())){
-            state = CreateActivity.State.EDIT;
-        } else {
-            state = CreateActivity.State.VIEW;
-        }
-
-        i.putExtra(CreateActivity.STATE_INTENT_KEY, state);
-        i.putExtra(CreateActivity.JOURNAL_ENTRY_INTENT_KEY, Parcels.wrap(journalEntry));
-        startActivity(i);
-    }
 
 }

@@ -3,17 +3,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".profile_screen.ProfileFragment"
-    android:background="@color/bg_color"
-    >
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".common.JournalsListViewerFragment">
 
-    <include
-        android:id="@+id/more_toolbar"
-        layout="@layout/base_toolbar"/>
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/entries_recyclerview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="more fragment" />
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
 </FrameLayout>

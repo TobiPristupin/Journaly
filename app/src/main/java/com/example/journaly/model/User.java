@@ -6,6 +6,7 @@ import androidx.annotation.Nullable;
 
 import com.google.firebase.auth.FirebaseUser;
 
+import org.parceler.Parcel;
 
 
 /*
@@ -14,6 +15,7 @@ because firebase has no functionality for fetching a random user given their uid
 the code can access is the currently logged in user. We need a way to fetch any user given their uid,
 so we create our own 'users/' path in the database. This is the model for the data object we store in that path.
 */
+@Parcel(Parcel.Serialization.BEAN)
 public class User {
 
     private String uid;

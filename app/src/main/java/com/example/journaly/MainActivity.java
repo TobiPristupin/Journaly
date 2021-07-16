@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
     private void initViews() {
         homeFragment = HomeFragment.newInstance();
         inNeedFragment = UsersInNeedFragment.newInstance();
-        profileFragment = ProfileFragment.newInstance();
+        profileFragment = ProfileFragment.newInstance(new User(LoginManager.getInstance().getCurrentUser()));
         searchFragment = SearchFragment.newInstance();
 
         initBottomNavigation();
