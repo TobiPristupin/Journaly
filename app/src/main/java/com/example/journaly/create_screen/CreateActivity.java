@@ -39,6 +39,7 @@ import java.util.Map;
 
 import es.dmoral.toasty.Toasty;
 import io.reactivex.rxjava3.core.Maybe;
+import io.reactivex.rxjava3.functions.Function;
 
 public class CreateActivity extends AppCompatActivity {
 
@@ -184,6 +185,8 @@ public class CreateActivity extends AppCompatActivity {
             return;
         }
 
+        binding.createProgressBar.setVisibility(View.VISIBLE);
+
         String title = binding.titleEdittext.getText().toString();
         String text = binding.mainTextEdittext.getText().toString();
         boolean isPublic = binding.publicSwitch.isChecked();
@@ -196,15 +199,18 @@ public class CreateActivity extends AppCompatActivity {
                     Log.i(TAG, "Successfully uploaded image");
                     JournalEntry journalEntry = new JournalEntry(title, text, unixTime, isPublic, mood, userId, true, uri.toString());
                     pushToDatabase(journalEntry);
+                    binding.createProgressBar.setVisibility(View.INVISIBLE);
                     finish();
                 },
                 (Throwable throwable) -> { //on error uploading image
                     Log.w(TAG, throwable);
                     Toasty.error(CreateActivity.this, "There was an error uploading the image", Toast.LENGTH_SHORT, true).show();
+                    binding.createProgressBar.setVisibility(View.INVISIBLE);
                 },
                 () -> { //no image uploaded
                     JournalEntry journalEntry = new JournalEntry(title, text, unixTime, isPublic, mood, userId, false, null);
                     pushToDatabase(journalEntry);
+                    binding.createProgressBar.setVisibility(View.INVISIBLE);
                     finish();
                 }
         );

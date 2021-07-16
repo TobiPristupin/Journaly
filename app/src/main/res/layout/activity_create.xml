@@ -17,11 +17,23 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:navigationIcon="@drawable/ic_baseline_close_24"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
         app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         app:title="Detail"
-        app:titleTextColor="@android:color/white"
-        app:navigationIcon="@drawable/ic_baseline_close_24"/>
+        app:titleTextColor="@android:color/white" />
+
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:id="@+id/create_progress_bar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/create_toolbar"
+        app:trackThickness="8dp"
+        tools:visibility="visible" />
 
     <TextView
         android:id="@+id/day_number_tv"
@@ -88,12 +100,12 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="24dp"
         android:layout_marginBottom="24dp"
+        android:backgroundTint="@color/primary_dark"
+        android:src="@drawable/ic_baseline_add_a_photo_24"
+        app:borderWidth="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:backgroundTint="@color/primary_dark"
-        app:tint="@android:color/white"
-        android:src="@drawable/ic_baseline_add_a_photo_24"
-        />
+        app:tint="@android:color/white" />
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/journal_image"

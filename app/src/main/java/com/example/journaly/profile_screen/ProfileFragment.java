@@ -1,4 +1,4 @@
-package com.example.journaly.more_screen;
+package com.example.journaly.profile_screen;
 
 import android.os.Bundle;
 
@@ -10,14 +10,14 @@ import android.view.ViewGroup;
 
 import com.example.journaly.R;
 
-public class MoreFragment extends Fragment {
+public class ProfileFragment extends Fragment {
 
-    public MoreFragment() {
+    public ProfileFragment() {
         // Required empty public constructor
     }
 
-    public static MoreFragment newInstance() {
-        return new MoreFragment();
+    public static ProfileFragment newInstance() {
+        return new ProfileFragment();
     }
 
     @Override

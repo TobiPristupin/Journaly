@@ -1,4 +1,4 @@
-package com.example.journaly.analysis_screen;
+package com.example.journaly.search_screen;
 
 import android.os.Bundle;
 
@@ -10,16 +10,14 @@ import android.view.ViewGroup;
 
 import com.example.journaly.R;
 
-public class AnalysisFragment extends Fragment {
+public class SearchFragment extends Fragment {
 
-
-    public AnalysisFragment() {
+    public SearchFragment() {
         // Required empty public constructor
     }
 
-
-    public static AnalysisFragment newInstance() {
-        return new AnalysisFragment();
+    public static SearchFragment newInstance() {
+        return new SearchFragment();
     }
 
     @Override
@@ -31,6 +29,6 @@ public class AnalysisFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_analysis, container, false);
+        return inflater.inflate(R.layout.fragment_search, container, false);
     }
 }

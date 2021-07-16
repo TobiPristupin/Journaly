@@ -8,9 +8,9 @@
         />
 
     <item
-        android:id="@+id/menu_analysis"
-        android:icon="@drawable/ic_baseline_analytics_24"
-        android:title="Analysis"
+        android:id="@+id/menu_in_need"
+        android:icon="@drawable/ic_baseline_sentiment_very_dissatisfied_24"
+        android:title="In Need"
         />
 
     <item
@@ -18,15 +18,15 @@
         android:title="" />
 
     <item
-        android:id="@+id/menu_more"
-        android:icon="@drawable/ic_baseline_more_horiz_24"
-        android:title="More"
+        android:id="@+id/menu_search"
+        android:icon="@drawable/ic_baseline_search_24"
+        android:title="Search"
         />
 
     <item
-        android:id="@+id/menu_settings"
-        android:icon="@drawable/ic_baseline_settings_24"
-        android:title="Settings"
+        android:id="@+id/menu_profile"
+        android:icon="@drawable/ic_baseline_account_circle_24"
+        android:title="Profile"
         />
 
 
