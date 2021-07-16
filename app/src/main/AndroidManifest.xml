@@ -2,18 +2,20 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.journaly">
 
-    <uses-feature android:name="android.hardware.camera"
+    <uses-feature
+        android:name="android.hardware.camera"
         android:required="true" />
 
     <application
+        android:name=".MainApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Journaly"
-        android:name=".MainApplication">
-        <activity android:name=".create_screen.CreateActivity"></activity>
+        android:theme="@style/Theme.Journaly">
+        <activity android:name=".settings_screen.SettingsActivity"></activity>
+        <activity android:name=".create_screen.CreateActivity" />
         <activity android:name=".login.LoginActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>
@@ -23,7 +25,6 @@
             </intent-filter>
         </activity>
 
-
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.journaly.fileprovider"
@@ -31,7 +32,7 @@
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_paths"/>
+                android:resource="@xml/file_paths" />
         </provider>
     </application>
 

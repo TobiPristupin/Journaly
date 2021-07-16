@@ -2,16 +2,14 @@ package com.example.journaly.common;
 
 import android.content.Intent;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.example.journaly.R;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+
 import com.example.journaly.create_screen.CreateActivity;
 import com.example.journaly.databinding.FragmentJournalsListViewerBinding;
 import com.example.journaly.login.LoginManager;
@@ -19,6 +17,7 @@ import com.example.journaly.model.FirebaseJournalRepository;
 import com.example.journaly.model.FirebaseUsersRepository;
 import com.example.journaly.model.JournalEntry;
 import com.example.journaly.model.JournalRepository;
+import com.example.journaly.model.User;
 import com.example.journaly.model.UsersRepository;
 
 import org.parceler.Parcels;
@@ -33,8 +32,19 @@ import io.reactivex.rxjava3.functions.Function;
 
 public class JournalsListViewerFragment extends Fragment {
 
+    public enum Mode {
+        USER_PROFILE, //show posts only from certain user
+        HOME_FEED, //show home feed
+    }
+
     public static final String TAG = "JournalsListViewerFragment";
     private FragmentJournalsListViewerBinding binding;
+
+    private static final String MODE_PARAM = "mode";
+    private static final String USER_PARAM = "user";
+    private Mode mode;
+    private User user;
+
     private JournalEntryAdapter journalAdapter;
     private List<JournalEntry> allJournals = new ArrayList<>(); //holds all loaded journals
     private List<JournalEntry> displayedJournals = new ArrayList<>(); //holds all currently displayed journals according to filtering
@@ -42,17 +52,24 @@ public class JournalsListViewerFragment extends Fragment {
     private UsersRepository usersRepository = FirebaseUsersRepository.getInstance();
     private List<Disposable> dataSubscriptions = new ArrayList<>();
 
+
     public JournalsListViewerFragment() {
         // Required empty public constructor
     }
 
-    public static JournalsListViewerFragment newInstance() {
-        return new JournalsListViewerFragment();
+    public static Fragment newInstance(Mode mode, User user) {
+        Fragment fragment = new JournalsListViewerFragment();
+        Bundle bundle = new Bundle();
+        bundle.putSerializable(MODE_PARAM, mode);
+        bundle.putParcelable(USER_PARAM, Parcels.wrap(user));
+        fragment.setArguments(bundle);
+        return fragment;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        extractDataFromArguments();
     }
 
     @Override
@@ -62,6 +79,12 @@ public class JournalsListViewerFragment extends Fragment {
         initViews();
         subscribeToData();
         return binding.getRoot();
+    }
+
+    private void extractDataFromArguments() {
+        Bundle bundle = getArguments();
+        mode = (Mode) bundle.getSerializable(MODE_PARAM);
+        user = Parcels.unwrap(bundle.getParcelable(USER_PARAM));
     }
 
     private void subscribeToData() {
@@ -76,15 +99,13 @@ public class JournalsListViewerFragment extends Fragment {
 
         Disposable subscription2 = journalRepository.fetch()
                 .map(stringJournalEntryMap -> {
-                    //TODO: implement filtering
-
                     //why are we using Java's stream filter instead of RxJava filter? Because RxJava
                     //filter operates only on an observable of items, and in this case we have an
                     //observable of one item, that item being a map containing all journal entries. We
                     //could use observableToIteratable, then filter, then toList, but that introduces some
                     //other issues explained here: https://github.com/ReactiveX/RxJava/issues/3861.
                     return stringJournalEntryMap.values().stream()
-                            .filter(journalEntry -> true)
+                            .filter(journalEntry -> filterPost(journalEntry))
                             .sorted()
                             .collect(Collectors.toList());
                 })
@@ -98,7 +119,7 @@ public class JournalsListViewerFragment extends Fragment {
         dataSubscriptions.add(subscription2);
     }
 
-    private void initViews(){
+    private void initViews() {
         journalAdapter = new JournalEntryAdapter(displayedJournals, usersRepository,
                 position -> onJournalItemClick(displayedJournals.get(position)), getContext());
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
@@ -109,16 +130,34 @@ public class JournalsListViewerFragment extends Fragment {
     private void onJournalItemClick(JournalEntry journalEntry) {
         Intent i = new Intent(getContext(), CreateActivity.class);
 
-        CreateActivity.State state;
-        if (LoginManager.getInstance().getCurrentUser().getUid().equals(journalEntry.getUserId())){
-            state = CreateActivity.State.EDIT;
+        CreateActivity.Mode mode;
+        if (LoginManager.getInstance().getCurrentUser().getUid().equals(journalEntry.getUserId())) {
+            mode = CreateActivity.Mode.EDIT;
         } else {
-            state = CreateActivity.State.VIEW;
+            mode = CreateActivity.Mode.VIEW;
         }
 
-        i.putExtra(CreateActivity.STATE_INTENT_KEY, state);
+        i.putExtra(CreateActivity.STATE_INTENT_KEY, mode);
         i.putExtra(CreateActivity.JOURNAL_ENTRY_INTENT_KEY, Parcels.wrap(journalEntry));
         startActivity(i);
+    }
+
+    private boolean filterPost(JournalEntry journalEntry) {
+        if (mode == Mode.USER_PROFILE) {
+            //if the user we're viewing is the same one that is logged in
+            if (user.getUid().equals(LoginManager.getInstance().getCurrentUser().getUid())) {
+                //show all posts from that user
+                return journalEntry.getUserId().equals(user.getUid());
+            } else { //user we're viewing is not the one logged in
+                //show public posts only
+                return journalEntry.getUserId().equals(user.getUid()) && journalEntry.isPublic();
+            }
+        } else if (mode == Mode.HOME_FEED) {
+            //show personal posts or public posts from other users
+            return journalEntry.getUserId().equals(user.getUid()) || journalEntry.isPublic();
+        }
+
+        throw new RuntimeException("Unreachable");
     }
 
     @Override

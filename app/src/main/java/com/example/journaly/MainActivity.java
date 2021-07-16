@@ -18,7 +18,6 @@ import com.example.journaly.model.FirebaseUsersRepository;
 import com.example.journaly.model.User;
 import com.example.journaly.model.UsersRepository;
 import com.example.journaly.profile_screen.ProfileFragment;
-import com.example.journaly.settings_screen.SettingsFragment;
 import com.github.nisrulz.sensey.Sensey;
 import com.github.nisrulz.sensey.ShakeDetector;
 import com.google.firebase.auth.FirebaseAuth;
@@ -71,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
         builder.setNegativeButton("No", (dialogInterface, i) -> dialogInterface.cancel());
         builder.setPositiveButton("Yes", (dialog, which) -> {
             Intent i = new Intent(MainActivity.this, CreateActivity.class);
-            i.putExtra(CreateActivity.STATE_INTENT_KEY, CreateActivity.State.CREATE);
+            i.putExtra(CreateActivity.STATE_INTENT_KEY, CreateActivity.Mode.CREATE);
             startActivity(i);
         });
         builder.create().show();
@@ -90,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
     private void initFab() {
         binding.createJournalFab.setOnClickListener(v -> {
             Intent i = new Intent(MainActivity.this, CreateActivity.class);
-            i.putExtra(CreateActivity.STATE_INTENT_KEY, CreateActivity.State.CREATE);
+            i.putExtra(CreateActivity.STATE_INTENT_KEY, CreateActivity.Mode.CREATE);
             startActivity(i);
         });
     }

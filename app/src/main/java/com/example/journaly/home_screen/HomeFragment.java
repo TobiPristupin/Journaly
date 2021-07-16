@@ -20,6 +20,7 @@ import com.example.journaly.model.FirebaseJournalRepository;
 import com.example.journaly.model.FirebaseUsersRepository;
 import com.example.journaly.model.JournalEntry;
 import com.example.journaly.model.JournalRepository;
+import com.example.journaly.model.User;
 import com.example.journaly.model.UsersRepository;
 
 import org.parceler.Parcels;
@@ -53,7 +54,9 @@ public class HomeFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (savedInstanceState == null){
-            Fragment journalsListViewerFragment = JournalsListViewerFragment.newInstance();
+            JournalsListViewerFragment.Mode homeFeedMode = JournalsListViewerFragment.Mode.HOME_FEED;
+            User currentlyLoggedIn = new User(LoginManager.getInstance().getCurrentUser());
+            Fragment journalsListViewerFragment = JournalsListViewerFragment.newInstance(homeFeedMode, currentlyLoggedIn);
 
             getParentFragmentManager()
                     .beginTransaction()

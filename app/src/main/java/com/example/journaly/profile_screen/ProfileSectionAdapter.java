@@ -19,17 +19,18 @@ public class ProfileSectionAdapter extends FragmentStateAdapter  {
         this.user = user;
     }
 
+
+
     @NonNull
     @NotNull
     @Override
     public Fragment createFragment(int position) {
         switch (position){
             case 0:
-                System.out.println(0);
                 return ProfileAboutFragment.newInstance(user);
             case 1:
-                System.out.println(1);
-                return JournalsListViewerFragment.newInstance();
+                JournalsListViewerFragment.Mode profileMode = JournalsListViewerFragment.Mode.USER_PROFILE;
+                return JournalsListViewerFragment.newInstance(profileMode, user);
         };
 
         throw new RuntimeException("Unreachable");

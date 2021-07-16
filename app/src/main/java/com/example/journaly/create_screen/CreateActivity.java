@@ -39,12 +39,11 @@ import java.util.Map;
 
 import es.dmoral.toasty.Toasty;
 import io.reactivex.rxjava3.core.Maybe;
-import io.reactivex.rxjava3.functions.Function;
 
 public class CreateActivity extends AppCompatActivity {
 
     //a state for this activity must be passed by the calling intent.
-    public enum State {
+    public enum Mode {
         CREATE, //creating a new entry
         EDIT, //editing a new entry (assumes current user is owner of entry being edited)
         VIEW //viewing an entry, when current user != owner of entry
@@ -60,7 +59,7 @@ public class CreateActivity extends AppCompatActivity {
     @Nullable
     private JournalEntry intentJournalEntry; //pased from intent
     @NotNull
-    private State state; //passed from intent
+    private CreateActivity.Mode mode; //passed from intent
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,8 +73,8 @@ public class CreateActivity extends AppCompatActivity {
 
     private void extractDataFromIntent() {
         Intent intent = getIntent();
-        state = (State) intent.getSerializableExtra(STATE_INTENT_KEY);
-        if (state == State.EDIT || state == State.VIEW){
+        mode = (Mode) intent.getSerializableExtra(STATE_INTENT_KEY);
+        if (mode == Mode.EDIT || mode == Mode.VIEW){
             intentJournalEntry = Parcels.unwrap(intent.getParcelableExtra(JOURNAL_ENTRY_INTENT_KEY));
         }
     }
@@ -86,7 +85,7 @@ public class CreateActivity extends AppCompatActivity {
         initDateViews();
         initCamera();
 
-        if (state == State.EDIT || state == State.VIEW){
+        if (mode == Mode.EDIT || mode == Mode.VIEW){
             populateViewsWithIntentData();
         }
     }
@@ -125,7 +124,7 @@ public class CreateActivity extends AppCompatActivity {
             Glide.with(this).load(intentJournalEntry.getImageUri()).into(binding.journalImage);
         }
 
-        if (state == State.VIEW){
+        if (mode == Mode.VIEW){
             //Prevent any type of input, only display data
             binding.mainTextEdittext.setFocusable(false);
             binding.titleEdittext.setFocusable(false);
@@ -178,7 +177,7 @@ public class CreateActivity extends AppCompatActivity {
 
     private void saveEntry(){
         //saving functionality shouldn't be enabled if we're just viewing
-        assert state == State.CREATE || state == State.EDIT;
+        assert mode == Mode.CREATE || mode == Mode.EDIT;
 
         if (!fieldsAreValid()){
             Toasty.error(this, "Missing fields", Toast.LENGTH_SHORT, true).show();
@@ -233,14 +232,14 @@ public class CreateActivity extends AppCompatActivity {
     }
 
     private void pushToDatabase(JournalEntry entry){
-        if (state == State.EDIT){
+        if (mode == Mode.EDIT){
             entry.setId(intentJournalEntry.getId());
         }
         journalRepository.addOrUpdate(entry);
     }
 
     private void deleteEntry() {
-        assert(state == State.EDIT); //delete functionality should not even be enabled if we're not in edit mode
+        assert(mode == Mode.EDIT); //delete functionality should not even be enabled if we're not in edit mode
         showConfirmDeleteDialog((dialog, which) -> {
             journalRepository.delete(intentJournalEntry);
             finish();
@@ -273,8 +272,8 @@ public class CreateActivity extends AppCompatActivity {
         MenuItem delete = menu.findItem(R.id.action_delete);
         MenuItem save = menu.findItem(R.id.action_save);
 
-        delete.setVisible(state == State.EDIT);
-        save.setVisible(state == State.CREATE || state == State.EDIT);
+        delete.setVisible(mode == Mode.EDIT);
+        save.setVisible(mode == Mode.CREATE || mode == Mode.EDIT);
 
         return super.onPrepareOptionsMenu(menu);
     }
