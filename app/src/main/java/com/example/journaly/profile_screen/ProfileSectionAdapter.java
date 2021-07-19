@@ -5,7 +5,6 @@ import androidx.fragment.app.Fragment;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import com.example.journaly.common.JournalsListViewerFragment;
-import com.example.journaly.login.LoginManager;
 import com.example.journaly.model.User;
 
 import org.jetbrains.annotations.NotNull;
@@ -30,7 +29,7 @@ public class ProfileSectionAdapter extends FragmentStateAdapter  {
                 return ProfileAboutFragment.newInstance(user);
             case 1:
                 JournalsListViewerFragment.Mode profileMode = JournalsListViewerFragment.Mode.USER_PROFILE;
-                return JournalsListViewerFragment.newInstance(profileMode, user);
+                return JournalsListViewerFragment.newInstance(profileMode, user.getUid());
         };
 
         throw new RuntimeException("Unreachable");

@@ -33,7 +33,8 @@ import io.reactivex.rxjava3.functions.Consumer;
 public class JournalEntryAdapter extends RecyclerView.Adapter<JournalEntryAdapter.ViewHolder> {
 
     public interface OnEntryClickListener {
-        void onEntryClick(int position);
+        void onUsernameClick(int position); //triggered when profile picture or username clicked
+        void onEntryClick(int position); //triggered when anywhere else is clicked
     }
 
     public static final String TAG = "JournalEntryAdapter";
@@ -97,6 +98,10 @@ public class JournalEntryAdapter extends RecyclerView.Adapter<JournalEntryAdapte
             } else {
                 binding.postImage.setVisibility(View.GONE);
             }
+
+            View.OnClickListener onUsernameClick = v -> clickListener.onUsernameClick(getAdapterPosition());
+            binding.entryPfp.setOnClickListener(onUsernameClick);
+            binding.entryUsername.setOnClickListener(onUsernameClick);
 
             binding.getRoot().setOnClickListener(v -> {
                 clickListener.onEntryClick(getAdapterPosition());

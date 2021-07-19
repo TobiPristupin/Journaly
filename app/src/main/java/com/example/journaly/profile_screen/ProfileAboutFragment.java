@@ -8,12 +8,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.example.journaly.R;
 import com.example.journaly.databinding.FragmentProfileAboutBinding;
-import com.example.journaly.login.LoginManager;
+import com.example.journaly.login.AuthManager;
 import com.example.journaly.model.User;
 
-import org.parceler.Parcel;
 import org.parceler.Parcels;
 
 public class ProfileAboutFragment extends Fragment {
@@ -40,7 +38,7 @@ public class ProfileAboutFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         user = Parcels.unwrap(getArguments().getParcelable(USER_PARAM));
-        editMode = LoginManager.getInstance().getCurrentUser().getUid().equals(user.getUid());
+        editMode = AuthManager.getInstance().getLoggedInUserId().equals(user.getUid());
     }
 
     @Override

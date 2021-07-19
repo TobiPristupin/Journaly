@@ -114,6 +114,5 @@ public class FirebaseJournalRepository implements JournalRepository {
 
     private void onNewEntriesCancelled(DatabaseError databaseError, ObservableEmitter<Map<String, JournalEntry>> emitter) {
         Log.w(TAG, databaseError.getMessage());
-        emitter.onError(databaseError.toException());
     }
 }

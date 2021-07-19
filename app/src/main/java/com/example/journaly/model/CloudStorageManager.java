@@ -1,27 +1,18 @@
 package com.example.journaly.model;
 
 import android.app.Activity;
-import android.graphics.Bitmap;
 import android.net.Uri;
 
-import com.example.journaly.login.LoginManager;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
+import com.example.journaly.login.AuthManager;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
-import org.jetbrains.annotations.NotNull;
-
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 
 import io.reactivex.rxjava3.annotations.NonNull;
 import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.core.SingleEmitter;
-import io.reactivex.rxjava3.core.SingleObserver;
 import io.reactivex.rxjava3.core.SingleOnSubscribe;
 
 public class CloudStorageManager {
@@ -58,7 +49,7 @@ public class CloudStorageManager {
     }
 
     private String generateRandomFilename(){
-        return LoginManager.getInstance().getCurrentUser().getUid() + "-" + System.currentTimeMillis();
+        return AuthManager.getInstance().getLoggedInUserId() + "-" + System.currentTimeMillis();
     }
 
 }

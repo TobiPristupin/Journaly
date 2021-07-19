@@ -13,7 +13,7 @@ import com.example.journaly.create_screen.CreateActivity;
 import com.example.journaly.databinding.ActivityMainBinding;
 import com.example.journaly.home_screen.HomeFragment;
 import com.example.journaly.login.LoginActivity;
-import com.example.journaly.login.LoginManager;
+import com.example.journaly.login.AuthManager;
 import com.example.journaly.model.FirebaseUsersRepository;
 import com.example.journaly.model.User;
 import com.example.journaly.model.UsersRepository;
@@ -37,13 +37,9 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        if (!LoginManager.getInstance().isLoggedIn()){
+        if (!AuthManager.getInstance().isLoggedIn()){
             goToLogin();
         }
-
-        //Update user in users database. Explanation of why we are doing this can be found in User class
-        UsersRepository usersRepository = FirebaseUsersRepository.getInstance();
-        usersRepository.add(new User(FirebaseAuth.getInstance().getCurrentUser()));
 
         initShakeDetection();
         initViews();
@@ -79,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
     private void initViews() {
         homeFragment = HomeFragment.newInstance();
         inNeedFragment = UsersInNeedFragment.newInstance();
-        profileFragment = ProfileFragment.newInstance(new User(LoginManager.getInstance().getCurrentUser()));
+        profileFragment = ProfileFragment.newInstance(AuthManager.getInstance().getLoggedInUserId(), false);
         searchFragment = SearchFragment.newInstance();
 
         initBottomNavigation();

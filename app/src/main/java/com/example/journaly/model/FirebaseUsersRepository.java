@@ -1,7 +1,9 @@
 package com.example.journaly.model;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+import android.util.Log;
+
+import androidx.annotation.NonNull;
+
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -10,12 +12,11 @@ import com.google.firebase.database.ValueEventListener;
 
 import org.jetbrains.annotations.NotNull;
 
-import io.reactivex.rxjava3.annotations.NonNull;
 import io.reactivex.rxjava3.core.Single;
-import io.reactivex.rxjava3.core.SingleEmitter;
-import io.reactivex.rxjava3.core.SingleObserver;
-import io.reactivex.rxjava3.core.SingleOnSubscribe;
 
+//Use this class for creating a new user object in database, and fetching user data from database. If
+//you want to quickly know who is the currently logged in user, use AuthManager class. This class interfaces
+//with the Firebase Database Service, AuthManager interfaces with Firebase Auth Service, hence the separation.
 public class FirebaseUsersRepository implements UsersRepository {
 
     private static final String TAG = "FirebaseUsersRepository";
@@ -35,8 +36,32 @@ public class FirebaseUsersRepository implements UsersRepository {
         return instance;
     }
 
-    public void add(User user){
-        userDatabaseRef.child(user.getUid()).setValue(user);
+    public void createNewUser(String userId, String email, String photoUri){
+        userExistsInDb(userId).subscribe(userExists -> {
+            if (userExists) {
+                throw new RuntimeException("Attempting to create user that already exists. Aborting since this operation will overwrite existing data");
+            }
+
+            User user = new User(userId, photoUri, email, null, null);
+            userDatabaseRef.child(userId).setValue(user);
+        });
+    }
+
+    private Single<Boolean> userExistsInDb(String userId){
+        return Single.create(emitter -> {
+            DatabaseReference ref = userDatabaseRef.child(userId);
+            ref.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
+                    emitter.onSuccess(snapshot.exists());
+                }
+
+                @Override
+                public void onCancelled(@NonNull @NotNull DatabaseError error) {
+                    emitter.onError(error.toException());
+                }
+            });
+        });
     }
 
     public Single<User> userFromId(String uid){

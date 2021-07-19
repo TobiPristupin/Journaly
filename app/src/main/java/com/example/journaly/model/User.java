@@ -22,19 +22,19 @@ public class User {
     @Nullable
     private String photoUri;
     private String email;
+    private String bio;
+    private String contactInfo;
 
     public User(){
         //empty constructor for firebase
     }
 
-    public User(String uid, String photoUri, String email) {
+    public User(String uid, String photoUri, String email, String bio, String contactInfo) {
         this.uid = uid;
         this.photoUri = photoUri;
         this.email = email;
-    }
-
-    public User(FirebaseUser user){
-        this(user.getUid(), null, user.getEmail());
+        this.bio = bio;
+        this.contactInfo = contactInfo;
     }
 
     public String getUid() {

@@ -30,7 +30,10 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
-            tools:srcCompat="@tools:sample/avatars" />
+            tools:srcCompat="@tools:sample/avatars"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?android:attr/selectableItemBackground"/>
 
         <TextView
             android:id="@+id/entry_username"
@@ -43,7 +46,10 @@
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="@+id/entry_pfp"
             app:layout_constraintStart_toEndOf="@+id/entry_pfp"
-            app:layout_constraintTop_toTopOf="@+id/entry_pfp" />
+            app:layout_constraintTop_toTopOf="@+id/entry_pfp"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?android:attr/selectableItemBackground"/>
 
         <TextView
             android:id="@+id/entry_day_number"

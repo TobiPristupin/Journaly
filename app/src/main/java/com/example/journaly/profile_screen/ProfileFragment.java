@@ -16,7 +16,10 @@ import android.view.ViewGroup;
 import com.bumptech.glide.Glide;
 import com.example.journaly.R;
 import com.example.journaly.databinding.FragmentProfileBinding;
+import com.example.journaly.login.AuthManager;
+import com.example.journaly.model.FirebaseUsersRepository;
 import com.example.journaly.model.User;
+import com.example.journaly.model.UsersRepository;
 import com.example.journaly.settings_screen.SettingsActivity;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
@@ -24,21 +27,32 @@ import com.google.android.material.tabs.TabLayoutMediator;
 import org.jetbrains.annotations.NotNull;
 import org.parceler.Parcels;
 
+import io.reactivex.rxjava3.functions.Consumer;
+
 public class ProfileFragment extends Fragment {
 
-    private static final String USER_PARAM = "param1";
+    private static final String USER_PARAM = "user";
+    private static final String ENABLE_BACK_PARAM = "enableBack";
 
     private FragmentProfileBinding binding;
+    private String userId;
+    /*
+    If this fragment is accessed through bottom navigation bar, we should not have a back button in toolbar.
+    If this fragment is accessed by clicking on a user's info, we should have a back button in toolbar.
+    */
+    private boolean enableBackButton = false;
     private User user;
+    private UsersRepository usersRepository;
 
     public ProfileFragment() {
         // Required empty public constructor
     }
 
-    public static ProfileFragment newInstance(User user) {
+    public static ProfileFragment newInstance(String userId, boolean enableToolbarBackButton) {
         ProfileFragment fragment = new ProfileFragment();
         Bundle args = new Bundle();
-        args.putParcelable(USER_PARAM, Parcels.wrap(user));
+        args.putString(USER_PARAM, userId);
+        args.putBoolean(ENABLE_BACK_PARAM, enableToolbarBackButton);
         fragment.setArguments(args);
         return fragment;
     }
@@ -46,7 +60,8 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        user = Parcels.unwrap(getArguments().getParcelable(USER_PARAM));
+        userId = getArguments().getString(USER_PARAM);
+        enableBackButton = getArguments().getBoolean(ENABLE_BACK_PARAM);
     }
 
     @Override
@@ -55,7 +70,12 @@ public class ProfileFragment extends Fragment {
         binding = FragmentProfileBinding.inflate(inflater, container, false);
         // Inflate the layout for this fragment
 
-        initViews();
+
+        usersRepository = FirebaseUsersRepository.getInstance();
+        usersRepository.userFromId(userId).subscribe(user -> {
+            ProfileFragment.this.user = user;
+            initViews();
+        });
 
         return binding.getRoot();
     }
@@ -67,17 +87,27 @@ public class ProfileFragment extends Fragment {
     }
 
     private void initOptionsMenu() {
-        binding.profileToolbar.inflateMenu(R.menu.profile_toolbar_menu);
-        binding.profileToolbar.setOnMenuItemClickListener(item -> {
-            switch (item.getItemId()){
-                case R.id.action_settings:
-                    Intent i = new Intent(getContext(), SettingsActivity.class);
-                    startActivity(i);
-                    return true;
-            }
+        if (enableBackButton){
+            binding.profileToolbar.setNavigationIcon(R.drawable.ic_baseline_arrow_back_24);
+            binding.profileToolbar.setNavigationOnClickListener(v -> {
+                getActivity().finish();
+            });
+        }
 
-            return false;
-        });
+        //can only access settings if logged in as current user
+        if (AuthManager.getInstance().getLoggedInUserId().equals(userId)){
+            binding.profileToolbar.inflateMenu(R.menu.profile_toolbar_menu);
+            binding.profileToolbar.setOnMenuItemClickListener(item -> {
+                switch (item.getItemId()){
+                    case R.id.action_settings:
+                        Intent i = new Intent(getContext(), SettingsActivity.class);
+                        startActivity(i);
+                        return true;
+                }
+
+                return false;
+            });
+        }
     }
 
     private void initViews(){

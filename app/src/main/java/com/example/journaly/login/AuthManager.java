@@ -2,24 +2,35 @@ package com.example.journaly.login;
 
 import android.app.Activity;
 
+import com.example.journaly.model.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.ValueEventListener;
+
+import org.jetbrains.annotations.NotNull;
+
+import io.reactivex.rxjava3.annotations.NonNull;
+import io.reactivex.rxjava3.core.Single;
+import io.reactivex.rxjava3.core.SingleEmitter;
+import io.reactivex.rxjava3.core.SingleOnSubscribe;
 
 //Contains all firebase related information for logging in/out, creating users, and getting current user
-public class LoginManager {
+public class AuthManager {
 
-    private static LoginManager instance = null;
+    private static AuthManager instance = null;
     private FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
 
-    private LoginManager(){
+    private AuthManager(){
         //private empty constructor for singleton pattern
     }
 
-    public static LoginManager getInstance(){
+    public static AuthManager getInstance(){
         if (instance == null){
-            instance = new LoginManager();
+            instance = new AuthManager();
         }
 
         return instance;
@@ -29,8 +40,11 @@ public class LoginManager {
         return firebaseAuth.getCurrentUser() != null;
     }
 
-    public FirebaseUser getCurrentUser(){
-        return firebaseAuth.getCurrentUser();
+    //fetching the current user id can be done quickly and synchronosuly, so we provide a helper function here
+    //since this is an operation done very often. To fetch other information from the user, one must use
+    //getCurrentUser which makes a call to the database.
+    public String getLoggedInUserId(){
+        return firebaseAuth.getCurrentUser().getUid();
     }
 
     /*

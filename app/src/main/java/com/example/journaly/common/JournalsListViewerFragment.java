@@ -12,13 +12,15 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.journaly.create_screen.CreateActivity;
 import com.example.journaly.databinding.FragmentJournalsListViewerBinding;
-import com.example.journaly.login.LoginManager;
+import com.example.journaly.login.AuthManager;
 import com.example.journaly.model.FirebaseJournalRepository;
 import com.example.journaly.model.FirebaseUsersRepository;
 import com.example.journaly.model.JournalEntry;
 import com.example.journaly.model.JournalRepository;
 import com.example.journaly.model.User;
 import com.example.journaly.model.UsersRepository;
+import com.example.journaly.profile_screen.ProfileActivity;
+import com.example.journaly.profile_screen.ProfileFragment;
 
 import org.parceler.Parcels;
 
@@ -43,7 +45,7 @@ public class JournalsListViewerFragment extends Fragment {
     private static final String MODE_PARAM = "mode";
     private static final String USER_PARAM = "user";
     private Mode mode;
-    private User user;
+    private String userId;
 
     private JournalEntryAdapter journalAdapter;
     private List<JournalEntry> allJournals = new ArrayList<>(); //holds all loaded journals
@@ -57,11 +59,11 @@ public class JournalsListViewerFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public static Fragment newInstance(Mode mode, User user) {
+    public static Fragment newInstance(Mode mode, String userId) {
         Fragment fragment = new JournalsListViewerFragment();
         Bundle bundle = new Bundle();
         bundle.putSerializable(MODE_PARAM, mode);
-        bundle.putParcelable(USER_PARAM, Parcels.wrap(user));
+        bundle.putString(USER_PARAM, userId);
         fragment.setArguments(bundle);
         return fragment;
     }
@@ -84,7 +86,7 @@ public class JournalsListViewerFragment extends Fragment {
     private void extractDataFromArguments() {
         Bundle bundle = getArguments();
         mode = (Mode) bundle.getSerializable(MODE_PARAM);
-        user = Parcels.unwrap(bundle.getParcelable(USER_PARAM));
+        userId = bundle.getString(USER_PARAM);
     }
 
     private void subscribeToData() {
@@ -120,18 +122,33 @@ public class JournalsListViewerFragment extends Fragment {
     }
 
     private void initViews() {
-        journalAdapter = new JournalEntryAdapter(displayedJournals, usersRepository,
-                position -> onJournalItemClick(displayedJournals.get(position)), getContext());
+        journalAdapter = new JournalEntryAdapter(displayedJournals, usersRepository, new JournalEntryAdapter.OnEntryClickListener() {
+            @Override
+            public void onUsernameClick(int position) {
+                onJournalUsernameClick(displayedJournals.get(position));
+            }
+
+            @Override
+            public void onEntryClick(int position) {
+                onJournalItemClick(displayedJournals.get(position));
+            }
+        }, getContext());
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         binding.entriesRecyclerview.setAdapter(journalAdapter);
         binding.entriesRecyclerview.setLayoutManager(layoutManager);
+    }
+
+    private void onJournalUsernameClick(JournalEntry entry){
+        Intent i = new Intent(getContext(), ProfileActivity.class);
+        i.putExtra(ProfileActivity.INTENT_USER_ID_KEY, entry.getUserId());
+        startActivity(i);
     }
 
     private void onJournalItemClick(JournalEntry journalEntry) {
         Intent i = new Intent(getContext(), CreateActivity.class);
 
         CreateActivity.Mode mode;
-        if (LoginManager.getInstance().getCurrentUser().getUid().equals(journalEntry.getUserId())) {
+        if (AuthManager.getInstance().getLoggedInUserId().equals(journalEntry.getUserId())) {
             mode = CreateActivity.Mode.EDIT;
         } else {
             mode = CreateActivity.Mode.VIEW;
@@ -145,16 +162,16 @@ public class JournalsListViewerFragment extends Fragment {
     private boolean filterPost(JournalEntry journalEntry) {
         if (mode == Mode.USER_PROFILE) {
             //if the user we're viewing is the same one that is logged in
-            if (user.getUid().equals(LoginManager.getInstance().getCurrentUser().getUid())) {
+            if (userId.equals(AuthManager.getInstance().getLoggedInUserId())) {
                 //show all posts from that user
-                return journalEntry.getUserId().equals(user.getUid());
+                return journalEntry.getUserId().equals(userId);
             } else { //user we're viewing is not the one logged in
                 //show public posts only
-                return journalEntry.getUserId().equals(user.getUid()) && journalEntry.isPublic();
+                return journalEntry.getUserId().equals(userId) && journalEntry.isPublic();
             }
         } else if (mode == Mode.HOME_FEED) {
             //show personal posts or public posts from other users
-            return journalEntry.getUserId().equals(user.getUid()) || journalEntry.isPublic();
+            return journalEntry.getUserId().equals(userId) || journalEntry.isPublic();
         }
 
         throw new RuntimeException("Unreachable");

@@ -5,20 +5,15 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
-import android.preference.PreferenceFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.example.journaly.MainActivity;
 import com.example.journaly.R;
 import com.example.journaly.login.LoginActivity;
-import com.example.journaly.login.LoginManager;
+import com.example.journaly.login.AuthManager;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -49,7 +44,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
     private void initPreferences() {
         findPreference("preference_logout").setOnPreferenceClickListener(preference -> {
-            LoginManager.getInstance().logout();
+            AuthManager.getInstance().logout();
             goToLoginScreen();
             return true;
         });

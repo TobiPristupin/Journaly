@@ -9,8 +9,13 @@ import android.widget.Toast;
 
 import com.example.journaly.MainActivity;
 import com.example.journaly.databinding.ActivityLoginBinding;
+import com.example.journaly.model.FirebaseUsersRepository;
+import com.example.journaly.model.UsersRepository;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseUser;
+
+import org.parceler.Repository;
 
 import es.dmoral.toasty.Toasty;
 
@@ -37,15 +42,18 @@ public class LoginActivity extends AppCompatActivity {
             String username = binding.loginUsernameEdittext.getText().toString();
             String password = binding.loginPasswordEdittext.getText().toString();
 
-            if (!LoginManager.fieldsAreValid(username, password)){
+            if (!AuthManager.fieldsAreValid(username, password)){
                 Toasty.error(this, "Invalid credentials", Toast.LENGTH_SHORT, true).show();
                 return;
             }
 
-            LoginManager.getInstance().signup(username, password, task -> {
+            AuthManager.getInstance().signup(username, password, task -> {
                 if (task.isSuccessful()){
                     Log.d(TAG, "Successfully signed up");
                     Toasty.success(this, "Successfully signed up!", Toast.LENGTH_SHORT, true).show();
+                    UsersRepository usersRepository = FirebaseUsersRepository.getInstance();
+                    FirebaseUser user = task.getResult().getUser();
+                    usersRepository.createNewUser(user.getUid(), user.getEmail(), user.getPhotoUrl().toString());
                 } else {
                     Toasty.error(this, "Could not sign up. Please try again", Toast.LENGTH_SHORT, true).show();
                     Log.w(TAG, task.getException());
@@ -59,12 +67,12 @@ public class LoginActivity extends AppCompatActivity {
             String username = binding.loginUsernameEdittext.getText().toString();
             String pwdGuess = binding.loginPasswordEdittext.getText().toString();
 
-            if (!LoginManager.fieldsAreValid(username, pwdGuess)){
+            if (!AuthManager.fieldsAreValid(username, pwdGuess)){
                 Toasty.error(this, "Invalid credentials", Toast.LENGTH_SHORT, true).show();
                 return;
             }
 
-            LoginManager.getInstance().login(username, pwdGuess, (OnCompleteListener<AuthResult>) task -> {
+            AuthManager.getInstance().login(username, pwdGuess, (OnCompleteListener<AuthResult>) task -> {
                 if (task.isSuccessful()){
                     Log.d(TAG, "Successfully logged in");
                     goToMainActivity();

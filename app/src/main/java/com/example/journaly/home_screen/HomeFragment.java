@@ -1,41 +1,17 @@
 package com.example.journaly.home_screen;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.journaly.R;
-import com.example.journaly.common.JournalEntryAdapter;
 import com.example.journaly.common.JournalsListViewerFragment;
-import com.example.journaly.create_screen.CreateActivity;
 import com.example.journaly.databinding.FragmentHomeBinding;
-import com.example.journaly.login.LoginManager;
-import com.example.journaly.model.FirebaseJournalRepository;
-import com.example.journaly.model.FirebaseUsersRepository;
-import com.example.journaly.model.JournalEntry;
-import com.example.journaly.model.JournalRepository;
+import com.example.journaly.login.AuthManager;
 import com.example.journaly.model.User;
-import com.example.journaly.model.UsersRepository;
-
-import org.parceler.Parcels;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-
-import io.reactivex.rxjava3.core.Observable;
-import io.reactivex.rxjava3.core.ObservableSource;
-import io.reactivex.rxjava3.disposables.Disposable;
-import io.reactivex.rxjava3.functions.Consumer;
-import io.reactivex.rxjava3.functions.Function;
 
 public class HomeFragment extends Fragment {
 
@@ -55,8 +31,8 @@ public class HomeFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if (savedInstanceState == null){
             JournalsListViewerFragment.Mode homeFeedMode = JournalsListViewerFragment.Mode.HOME_FEED;
-            User currentlyLoggedIn = new User(LoginManager.getInstance().getCurrentUser());
-            Fragment journalsListViewerFragment = JournalsListViewerFragment.newInstance(homeFeedMode, currentlyLoggedIn);
+            String loggedInId = AuthManager.getInstance().getLoggedInUserId();
+            Fragment journalsListViewerFragment = JournalsListViewerFragment.newInstance(homeFeedMode, loggedInId);
 
             getParentFragmentManager()
                     .beginTransaction()

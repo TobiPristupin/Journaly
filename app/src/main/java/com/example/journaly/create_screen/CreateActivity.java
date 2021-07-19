@@ -21,7 +21,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.example.journaly.R;
 import com.example.journaly.databinding.ActivityCreateBinding;
-import com.example.journaly.login.LoginManager;
+import com.example.journaly.login.AuthManager;
 import com.example.journaly.model.CloudStorageManager;
 import com.example.journaly.model.FirebaseJournalRepository;
 import com.example.journaly.model.JournalEntry;
@@ -191,7 +191,7 @@ public class CreateActivity extends AppCompatActivity {
         boolean isPublic = binding.publicSwitch.isChecked();
         int mood = JournalEntry.NEUTRAL_MOOD; //TODO: Sentiment Analysis API
         long unixTime = System.currentTimeMillis();
-        String userId = LoginManager.getInstance().getCurrentUser().getUid();
+        String userId = AuthManager.getInstance().getLoggedInUserId();
 
         uploadPhotoIfNeeded().subscribe(
                 (Uri uri) -> { //on success uploading image
