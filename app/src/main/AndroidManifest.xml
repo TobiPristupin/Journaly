@@ -18,7 +18,9 @@
         <activity android:name=".settings_screen.SettingsActivity" />
         <activity android:name=".create_screen.CreateActivity" />
         <activity android:name=".login.LoginActivity" />
-        <activity android:name=".MainActivity">
+        <activity android:name=".MainActivity"
+            android:windowSoftInputMode="adjustPan"
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

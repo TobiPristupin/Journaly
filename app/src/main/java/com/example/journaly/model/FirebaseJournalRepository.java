@@ -22,7 +22,6 @@ public class FirebaseJournalRepository implements JournalRepository {
     private static FirebaseJournalRepository instance = null;
     private FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
     private DatabaseReference journalDatabaseRef = firebaseDatabase.getReference().child("journal_entries");
-    private DatabaseReference userDatabaseRef = firebaseDatabase.getReference().child("users");
     private static Observable<Map<String, JournalEntry>> entriesObservable;
 
     private FirebaseJournalRepository(){
