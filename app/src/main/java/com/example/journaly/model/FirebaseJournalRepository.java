@@ -63,6 +63,10 @@ public class FirebaseJournalRepository implements JournalRepository {
     }
 
     public Observable<Map<String, JournalEntry>> fetch() {
+        /*
+        we don't want to create a new observable every time (which in turn creates a new db connection).
+        Instead we want to cache the observable. We can do this since this class is a singleton.
+        */
         if (entriesObservable == null){
             entriesObservable = createEntriesObservable();
         }

@@ -33,8 +33,6 @@ public class ProfileActivity extends AppCompatActivity {
         getSupportFragmentManager().beginTransaction()
                 .setReorderingAllowed(true)
                 .add(R.id.profile_fragment_container, profileFragment).commit();
-
-
     }
 
 

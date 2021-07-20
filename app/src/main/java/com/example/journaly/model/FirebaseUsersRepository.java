@@ -1,5 +1,6 @@
 package com.example.journaly.model;
 
+import android.renderscript.Sampler;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -16,10 +17,15 @@ import com.google.firebase.database.ValueEventListener;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.CompletableEmitter;
 import io.reactivex.rxjava3.core.CompletableOnSubscribe;
 import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.ObservableEmitter;
+import io.reactivex.rxjava3.core.ObservableOnSubscribe;
 import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.functions.Cancellable;
 
@@ -32,6 +38,7 @@ public class FirebaseUsersRepository implements UsersRepository {
     private static FirebaseUsersRepository instance = null;
     private FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
     private DatabaseReference userDatabaseRef = firebaseDatabase.getReference().child("users");
+    private Observable<List<User>> allUsersObservable = null;
 
     private FirebaseUsersRepository() {
 
@@ -92,6 +99,52 @@ public class FirebaseUsersRepository implements UsersRepository {
             userDatabaseRef.child(uid).addValueEventListener(dbListener);
             emitter.setCancellable(() -> userDatabaseRef.child("uid").removeEventListener(dbListener));
         });
+    }
+
+    @Override
+    public Observable<List<User>> fetchAllUsers() {
+        /*
+        we don't want to create a new observable every time (which in turn creates a new db connection).
+        Instead we want to cache the observable. We can do this since this class is a singleton.
+        */
+        if (allUsersObservable == null){
+            allUsersObservable = createAllUsersObservable();
+        }
+
+        return allUsersObservable;
+    }
+
+    private Observable<List<User>> createAllUsersObservable(){
+        return Observable.create((ObservableOnSubscribe<List<User>>) emitter -> {
+            //create a firebase db listener that relays data to the emitter
+            ValueEventListener dbListener = createDatabaseConnectionForAllUsers(emitter);
+            userDatabaseRef.addValueEventListener(dbListener);
+            //when the emitter is canceled, remember to cancel the database listener also
+            emitter.setCancellable(() -> userDatabaseRef.removeEventListener(dbListener));
+        }).replay(1).refCount();
+        /*
+        replay(1) is very important: it makes the observable always remember the last stream of data emitted.
+        So when a new activity/fragment subscribes to this observer, they will immediately receive the last stream of data.
+        replay saves us from having to manually keep a cache.
+        */
+    }
+
+    private ValueEventListener createDatabaseConnectionForAllUsers(ObservableEmitter<List<User>> emitter){
+        return new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
+                List<User> users = new ArrayList<>();
+                for (DataSnapshot data : snapshot.getChildren()){
+                    users.add(data.getValue(User.class));
+                }
+                emitter.onNext(users);
+            }
+
+            @Override
+            public void onCancelled(@NonNull @NotNull DatabaseError error) {
+                Log.w(TAG, error.getMessage());
+            }
+        };
     }
 
     public Completable updateUserBio(String bio) {

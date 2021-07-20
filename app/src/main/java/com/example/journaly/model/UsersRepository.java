@@ -2,6 +2,9 @@ package com.example.journaly.model;
 
 import com.google.firebase.auth.FirebaseUser;
 
+import java.util.List;
+import java.util.Map;
+
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
@@ -17,6 +20,8 @@ public interface UsersRepository {
 
     //returns an observable so client can listen to changes
     Observable<User> fetchUserFromId(String id);
+
+    Observable<List<User>> fetchAllUsers();
 
     Completable updateUserBio(String bio);
 
