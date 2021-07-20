@@ -5,11 +5,10 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -22,16 +21,20 @@ import com.example.journaly.model.FirebaseUsersRepository;
 import com.example.journaly.model.User;
 import com.example.journaly.model.UsersRepository;
 import com.example.journaly.settings_screen.SettingsActivity;
-import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
 import org.jetbrains.annotations.NotNull;
-import org.parceler.Parcels;
 
+import java.util.List;
+
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
+import io.reactivex.rxjava3.disposables.Disposable;
+import io.reactivex.rxjava3.functions.Action;
 import io.reactivex.rxjava3.functions.Consumer;
 
 public class ProfileFragment extends Fragment {
 
+    public static final String TAG = "ProfileFragment";
     private static final String USER_PARAM = "user";
     private static final String ENABLE_BACK_PARAM = "enableBack";
 
@@ -44,6 +47,8 @@ public class ProfileFragment extends Fragment {
     private boolean enableBackButton = false;
     private User user;
     private UsersRepository usersRepository;
+    private CompositeDisposable disposables;
+    private boolean viewsInitialized = false;
 
     public ProfileFragment() {
         // Required empty public constructor
@@ -63,6 +68,7 @@ public class ProfileFragment extends Fragment {
         super.onCreate(savedInstanceState);
         userId = getArguments().getString(USER_PARAM);
         enableBackButton = getArguments().getBoolean(ENABLE_BACK_PARAM);
+        disposables = new CompositeDisposable();
     }
 
     @Override
@@ -73,13 +79,22 @@ public class ProfileFragment extends Fragment {
 
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 
-        usersRepository = FirebaseUsersRepository.getInstance();
-        usersRepository.userFromId(userId).subscribe(user -> {
-            ProfileFragment.this.user = user;
-            initViews();
-        });
+        subscribeToUserData();
 
         return binding.getRoot();
+    }
+
+    private void subscribeToUserData() {
+        usersRepository = FirebaseUsersRepository.getInstance();
+        Disposable subscription = usersRepository.fetchUserFromId(userId).subscribe(user -> {
+            //This is an observable stream. Everytime user corresponding to userId is modified in
+            //database, this code will run
+            ProfileFragment.this.user = user;
+            initViewsDependentOnUser();
+        }, throwable -> {
+            Log.w(TAG, throwable);
+        });
+        disposables.add(subscription);
     }
 
     @Override
@@ -112,10 +127,12 @@ public class ProfileFragment extends Fragment {
         }
     }
 
-    private void initViews(){
+    private void initViewsDependentOnUser(){
         Glide.with(this).load(user.getPhotoUri()).fallback(R.drawable.default_profile).into(binding.userPfp);
         binding.profileUsername.setText(user.getDisplayName());
-        initTabs();
+        initFollowFunctionality();
+
+       initTabs();
     }
 
     private void initTabs() {
@@ -132,5 +149,53 @@ public class ProfileFragment extends Fragment {
                     break;
             }
         }).attach();
+    }
+
+    private void initFollowFunctionality(){
+        List<String> followers = user.getFollowersAsList();
+        List<String> following = user.getFollowingAsList();
+        int followerCount = followers == null ? 0 : followers.size();
+        int followIngCount = following == null ? 0 : following.size();
+        binding.followersCount.setText(String.valueOf(followerCount));
+        binding.followingCount.setText(String.valueOf(followIngCount));
+
+        String loggedInId = AuthManager.getInstance().getLoggedInUserId();
+        if (user.getUid().equals(loggedInId)){
+            //if we're viewing our own profile, no need to show the "follow" button
+            binding.followButton.setVisibility(View.GONE);
+        } else {
+            //logged in user is viewing another user
+            if (followers != null && followers.contains(loggedInId)){ //already following
+                binding.followButton.setBackgroundColor(getResources().getColor(R.color.unfollow_red));
+                binding.followButton.setText("Unfollow");
+            } else {
+                binding.followButton.setBackgroundColor(getResources().getColor(R.color.follow_green));
+                binding.followButton.setText("Follow");
+            }
+        }
+
+        binding.followButton.setOnClickListener(v -> {
+            if (binding.followButton.getText().equals("Follow")){
+                usersRepository.follow(user.getUid()).subscribe(() -> {
+                    Log.i(TAG, "Successfully followed");
+                    initFollowFunctionality(); //refresh all data
+                }, throwable -> {
+                    Log.w(TAG, throwable);
+                });
+            } else {
+                usersRepository.unfollow(user.getUid()).subscribe(() -> {
+                    Log.i(TAG, "Successfully unfollowed");
+                    initFollowFunctionality();
+                }, throwable -> {
+                    Log.w(TAG, throwable);
+                });
+            }
+        });
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        disposables.dispose();
     }
 }

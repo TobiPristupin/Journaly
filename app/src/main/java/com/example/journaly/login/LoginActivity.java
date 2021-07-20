@@ -53,7 +53,8 @@ public class LoginActivity extends AppCompatActivity {
                     Toasty.success(this, "Successfully signed up!", Toast.LENGTH_SHORT, true).show();
                     UsersRepository usersRepository = FirebaseUsersRepository.getInstance();
                     FirebaseUser user = task.getResult().getUser();
-                    usersRepository.createNewUser(user.getUid(), user.getEmail(), user.getPhotoUrl().toString());
+                    String photoUrl = user.getPhotoUrl() == null ? null : user.getPhotoUrl().toString();
+                    usersRepository.createNewUser(user.getUid(), user.getEmail(), photoUrl);
                 } else {
                     Toasty.error(this, "Could not sign up. Please try again", Toast.LENGTH_SHORT, true).show();
                     Log.w(TAG, task.getException());

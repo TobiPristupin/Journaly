@@ -8,6 +8,10 @@ import com.google.firebase.auth.FirebaseUser;
 
 import org.parceler.Parcel;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 
 /*
 Wrapper for FirebaseUser class. Why are we creating a wrapper instead of using FirebaseUser directly?
@@ -22,19 +26,29 @@ public class User {
     @Nullable
     private String photoUri;
     private String email;
-    private String bio;
-    private String contactInfo;
+    @Nullable private String bio;
+    @Nullable private String contactInfo;
+    @Nullable private Map<String, String> followers;
+    @Nullable private Map<String, String> following;
 
     public User(){
         //empty constructor for firebase
     }
 
-    public User(String uid, String photoUri, String email, String bio, String contactInfo) {
+    public User(String uid,
+                @org.jetbrains.annotations.Nullable String photoUri,
+                String email,
+                @org.jetbrains.annotations.Nullable String bio,
+                @org.jetbrains.annotations.Nullable String contactInfo,
+                @org.jetbrains.annotations.Nullable Map<String, String> followers,
+                @org.jetbrains.annotations.Nullable Map<String, String> following) {
         this.uid = uid;
         this.photoUri = photoUri;
         this.email = email;
         this.bio = bio;
         this.contactInfo = contactInfo;
+        this.followers = followers;
+        this.following = following;
     }
 
     public String getUid() {
@@ -66,19 +80,50 @@ public class User {
         return this.email.split("@")[0];
     }
 
-    public String getBio() {
+    public @org.jetbrains.annotations.Nullable String getBio() {
         return bio;
     }
 
-    public void setBio(String bio) {
+    public void setBio(@org.jetbrains.annotations.Nullable String bio) {
         this.bio = bio;
     }
 
-    public String getContactInfo() {
+    public @org.jetbrains.annotations.Nullable String getContactInfo() {
         return contactInfo;
     }
 
-    public void setContactInfo(String contactInfo) {
+    public void setContactInfo(@org.jetbrains.annotations.Nullable String contactInfo) {
         this.contactInfo = contactInfo;
+    }
+
+    public @org.jetbrains.annotations.Nullable Map<String, String> getFollowers() {
+        return followers;
+    }
+
+    public @org.jetbrains.annotations.Nullable List<String> getFollowersAsList() {
+        if (followers == null){
+            return new ArrayList<>();
+        }
+        return new ArrayList<>(followers.values());
+    }
+
+    public void setFollowers(@org.jetbrains.annotations.Nullable Map<String, String> followers) {
+        this.followers = followers;
+    }
+
+    @Nullable
+    public Map<String, String> getFollowing() {
+        return following;
+    }
+
+    public @org.jetbrains.annotations.Nullable List<String> getFollowingAsList() {
+        if (following == null){
+            return new ArrayList<>();
+        }
+        return new ArrayList<>(following.values());
+    }
+
+    public void setFollowing(@org.jetbrains.annotations.Nullable Map<String, String> following) {
+        this.following = following;
     }
 }

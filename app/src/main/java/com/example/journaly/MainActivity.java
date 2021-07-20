@@ -30,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
     private UsersInNeedFragment inNeedFragment;
     private ProfileFragment profileFragment;
     private SearchFragment searchFragment;
+    private AlertDialog shakeDialog = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,15 +62,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showShakeDetectedDialog() {
+        if (shakeDialog != null && shakeDialog.isShowing()){
+            return;
+        }
+
         final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        builder.setMessage("It looks li1`ke you're shaking your phone. Would you like to write a journal entry?");
+        builder.setMessage("It looks like you're shaking your phone. Would you like to write a journal entry?");
         builder.setNegativeButton("No", (dialogInterface, i) -> dialogInterface.cancel());
         builder.setPositiveButton("Yes", (dialog, which) -> {
             Intent i = new Intent(MainActivity.this, CreateActivity.class);
             i.putExtra(CreateActivity.STATE_INTENT_KEY, CreateActivity.Mode.CREATE);
             startActivity(i);
         });
-        builder.create().show();
+        shakeDialog = builder.create();
+        shakeDialog.show();
     }
 
     private void initViews() {

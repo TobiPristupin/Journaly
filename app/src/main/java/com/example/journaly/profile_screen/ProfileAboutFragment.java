@@ -96,13 +96,11 @@ public class ProfileAboutFragment extends Fragment {
             String bio = binding.aboutEdittext.getText().toString();
             String about = binding.contactInfoEdittext.getText().toString();
 
-            usersRepository.updateUserBioAndContactInfo(user.getUid(), bio, about).subscribe(() -> {
+            usersRepository.updateUserBioAndContactInfo(bio, about).subscribe(() -> {
                 Log.i(TAG, "Successfully updated bio/contact info");
-                Toasty.success(getContext(), "Success", Toast.LENGTH_SHORT, true).show();
                 binding.saveButton.setEnabled(false);
             }, throwable -> {
                 Log.w(TAG, throwable);
-                Toasty.error(getContext(), "There was an error.", Toast.LENGTH_SHORT, true).show();
             });
         });
     }
@@ -143,4 +141,8 @@ public class ProfileAboutFragment extends Fragment {
         });
     }
 
+    @Override
+    public void onDetach() {
+        super.onDetach();
+    }
 }
