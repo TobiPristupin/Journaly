@@ -17,9 +17,9 @@ import com.bumptech.glide.Glide;
 import com.example.journaly.R;
 import com.example.journaly.databinding.FragmentProfileBinding;
 import com.example.journaly.login.AuthManager;
-import com.example.journaly.model.FirebaseUsersRepository;
-import com.example.journaly.model.User;
-import com.example.journaly.model.UsersRepository;
+import com.example.journaly.model.users.FirebaseUsersRepository;
+import com.example.journaly.model.users.User;
+import com.example.journaly.model.users.UsersRepository;
 import com.example.journaly.settings_screen.SettingsActivity;
 import com.google.android.material.tabs.TabLayoutMediator;
 
@@ -29,8 +29,6 @@ import java.util.List;
 
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.disposables.Disposable;
-import io.reactivex.rxjava3.functions.Action;
-import io.reactivex.rxjava3.functions.Consumer;
 
 public class ProfileFragment extends Fragment {
 

@@ -9,13 +9,11 @@ import android.widget.Toast;
 
 import com.example.journaly.MainActivity;
 import com.example.journaly.databinding.ActivityLoginBinding;
-import com.example.journaly.model.FirebaseUsersRepository;
-import com.example.journaly.model.UsersRepository;
+import com.example.journaly.model.users.FirebaseUsersRepository;
+import com.example.journaly.model.users.UsersRepository;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseUser;
-
-import org.parceler.Repository;
 
 import es.dmoral.toasty.Toasty;
 

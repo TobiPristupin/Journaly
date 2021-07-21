@@ -1,14 +1,10 @@
-package com.example.journaly.model;
+package com.example.journaly.model.users;
 
-import android.renderscript.Sampler;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 
 import com.example.journaly.login.AuthManager;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -21,13 +17,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.rxjava3.core.Completable;
-import io.reactivex.rxjava3.core.CompletableEmitter;
-import io.reactivex.rxjava3.core.CompletableOnSubscribe;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.ObservableEmitter;
 import io.reactivex.rxjava3.core.ObservableOnSubscribe;
 import io.reactivex.rxjava3.core.Single;
-import io.reactivex.rxjava3.functions.Cancellable;
 
 //Use this class for creating a new user object in database, and fetching user data from database. If
 //you want to quickly know who is the currently logged in user, use AuthManager class. This class interfaces

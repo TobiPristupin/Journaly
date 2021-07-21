@@ -1,4 +1,4 @@
-package com.example.journaly.model;
+package com.example.journaly.model.journals;
 
 import android.util.Log;
 

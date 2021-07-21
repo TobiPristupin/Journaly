@@ -14,13 +14,9 @@ import com.example.journaly.databinding.ActivityMainBinding;
 import com.example.journaly.home_screen.HomeFragment;
 import com.example.journaly.login.LoginActivity;
 import com.example.journaly.login.AuthManager;
-import com.example.journaly.model.FirebaseUsersRepository;
-import com.example.journaly.model.User;
-import com.example.journaly.model.UsersRepository;
 import com.example.journaly.profile_screen.ProfileFragment;
 import com.github.nisrulz.sensey.Sensey;
 import com.github.nisrulz.sensey.ShakeDetector;
-import com.google.firebase.auth.FirebaseAuth;
 
 
 public class MainActivity extends AppCompatActivity {

@@ -11,7 +11,6 @@ import com.example.journaly.R;
 import com.example.journaly.common.JournalsListViewerFragment;
 import com.example.journaly.databinding.FragmentHomeBinding;
 import com.example.journaly.login.AuthManager;
-import com.example.journaly.model.User;
 
 public class HomeFragment extends Fragment {
 

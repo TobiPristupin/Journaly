@@ -13,14 +13,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.example.journaly.create_screen.CreateActivity;
 import com.example.journaly.databinding.FragmentJournalsListViewerBinding;
 import com.example.journaly.login.AuthManager;
-import com.example.journaly.model.FirebaseJournalRepository;
-import com.example.journaly.model.FirebaseUsersRepository;
-import com.example.journaly.model.JournalEntry;
-import com.example.journaly.model.JournalRepository;
-import com.example.journaly.model.User;
-import com.example.journaly.model.UsersRepository;
+import com.example.journaly.model.journals.FirebaseJournalRepository;
+import com.example.journaly.model.users.FirebaseUsersRepository;
+import com.example.journaly.model.journals.JournalEntry;
+import com.example.journaly.model.journals.JournalRepository;
+import com.example.journaly.model.users.UsersRepository;
 import com.example.journaly.profile_screen.ProfileActivity;
-import com.example.journaly.profile_screen.ProfileFragment;
 
 import org.parceler.Parcels;
 

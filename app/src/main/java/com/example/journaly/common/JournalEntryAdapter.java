@@ -12,17 +12,15 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.journaly.R;
 import com.example.journaly.databinding.JournalEntryItemBinding;
-import com.example.journaly.model.JournalEntry;
-import com.example.journaly.model.UsersRepository;
+import com.example.journaly.model.journals.JournalEntry;
+import com.example.journaly.model.journals.Mood;
+import com.example.journaly.model.users.UsersRepository;
 import com.example.journaly.utils.DateUtils;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Map;
-
-import io.reactivex.rxjava3.disposables.CompositeDisposable;
-import io.reactivex.rxjava3.disposables.Disposable;
 
 public class JournalEntryAdapter extends RecyclerView.Adapter<JournalEntryAdapter.ViewHolder> {
 
@@ -66,10 +64,10 @@ public class JournalEntryAdapter extends RecyclerView.Adapter<JournalEntryAdapte
     public class ViewHolder extends RecyclerView.ViewHolder {
 
         private JournalEntryItemBinding binding;
-        private final Map<Integer, Integer> moodToDrawable = Map.of(
-                JournalEntry.NEGATIVE_MOOD, R.drawable.icons8_sad_48,
-                JournalEntry.NEUTRAL_MOOD, R.drawable.icons8_happy_48,
-                JournalEntry.POSITIVE_MOOD, R.drawable.icons8_happy_48
+        private final Map<Mood, Integer> moodToDrawable = Map.of(
+                Mood.NEGATIVE, R.drawable.icons8_sad_48,
+                Mood.NEUTRAL, R.drawable.icons8_neutral_48 ,
+                Mood.POSITIVE, R.drawable.icons8_happy_48
         );
 
         public ViewHolder(@NonNull @NotNull View itemView) {

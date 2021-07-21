@@ -6,14 +6,11 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SearchView;
-import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,9 +18,9 @@ import android.view.ViewGroup;
 import com.example.journaly.R;
 import com.example.journaly.common.ProfileItemAdapter;
 import com.example.journaly.databinding.FragmentSearchBinding;
-import com.example.journaly.model.FirebaseUsersRepository;
-import com.example.journaly.model.User;
-import com.example.journaly.model.UsersRepository;
+import com.example.journaly.model.users.FirebaseUsersRepository;
+import com.example.journaly.model.users.User;
+import com.example.journaly.model.users.UsersRepository;
 import com.example.journaly.profile_screen.ProfileActivity;
 import com.example.journaly.utils.StringUtils;
 
@@ -31,9 +28,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 

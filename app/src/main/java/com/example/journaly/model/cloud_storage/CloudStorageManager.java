@@ -1,4 +1,4 @@
-package com.example.journaly.model;
+package com.example.journaly.model.cloud_storage;
 
 import android.app.Activity;
 import android.net.Uri;

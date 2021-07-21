@@ -10,20 +10,14 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.example.journaly.databinding.FragmentProfileAboutBinding;
 import com.example.journaly.login.AuthManager;
-import com.example.journaly.model.FirebaseUsersRepository;
-import com.example.journaly.model.User;
-import com.example.journaly.model.UsersRepository;
+import com.example.journaly.model.users.FirebaseUsersRepository;
+import com.example.journaly.model.users.User;
+import com.example.journaly.model.users.UsersRepository;
 
 import org.parceler.Parcels;
-
-import es.dmoral.toasty.Toasty;
-import io.reactivex.rxjava3.core.Completable;
-import io.reactivex.rxjava3.functions.Action;
-import io.reactivex.rxjava3.functions.Consumer;
 
 public class ProfileAboutFragment extends Fragment {
 

@@ -1,4 +1,4 @@
-package com.example.journaly.model;
+package com.example.journaly.model.users;
 
 import android.net.Uri;
 

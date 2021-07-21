@@ -1,6 +1,5 @@
-package com.example.journaly.model;
+package com.example.journaly.model.journals;
 
-import java.util.List;
 import java.util.Map;
 
 import io.reactivex.rxjava3.core.Observable;

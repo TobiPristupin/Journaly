@@ -1,19 +1,13 @@
-package com.example.journaly.model;
-
-import android.net.Uri;
+package com.example.journaly.model.journals;
 
 import androidx.annotation.Nullable;
 
+import com.google.firebase.database.Exclude;
+
 import org.parceler.Parcel;
-import org.parceler.ParcelConstructor;
 
 @Parcel(Parcel.Serialization.BEAN)
 public class JournalEntry implements Comparable<JournalEntry> {
-
-    //Using int constants instead of an enum since firebase cannot serialize enums
-    public static final int POSITIVE_MOOD = 1;
-    public static final int NEUTRAL_MOOD = 0;
-    public static final int NEGATIVE_MOOD = -1;
 
     private String title;
     private String text;
@@ -21,22 +15,27 @@ public class JournalEntry implements Comparable<JournalEntry> {
     private long date;
     private boolean isPublic;
     private boolean containsImage;
-    private int mood;
     private String userId;
     @Nullable
     private String imageUri;
 
-    public JournalEntry(){
+    /*
+    range of [-inf, inf].
+     Not to be confused with Mood, which maps a sentiment to one of three categories (NEGATIVE. NEUTRAL, POSITIVE)
+    */
+    private double sentiment;
+
+    public JournalEntry() {
         //Empty constructor required for firebase
     }
 
-    public JournalEntry(String title, String text, long date, boolean isPublic, int mood, String userId, boolean containsImage, @org.jetbrains.annotations.Nullable String imageUri) {
+    public JournalEntry(String title, String text, long date, boolean isPublic, double sentiment, String userId, boolean containsImage, @org.jetbrains.annotations.Nullable String imageUri) {
         this.title = title;
         this.text = text;
         this.id = null; //no id since it is generated afterwards by the database
         this.date = date;
         this.isPublic = isPublic;
-        this.mood = mood;
+        this.sentiment = sentiment;
         this.containsImage = containsImage;
         this.userId = userId;
         this.imageUri = imageUri;
@@ -82,12 +81,21 @@ public class JournalEntry implements Comparable<JournalEntry> {
         isPublic = aPublic;
     }
 
-    public int getMood() {
-        return mood;
+    public double getSentiment() {
+        return sentiment;
     }
 
-    public void setMood(int mood) {
-        this.mood = mood;
+    public void setSentiment(double sentiment) {
+        this.sentiment = sentiment;
+    }
+
+    @Exclude
+    /*
+    don't store an enum in database since it causes issues with serialization.
+    there is no need to store mood anyways since mood is derived from sentiment
+    */
+    public Mood getMood() {
+        return Mood.fromSentiment(this.sentiment);
     }
 
     public boolean getContainsImage() {

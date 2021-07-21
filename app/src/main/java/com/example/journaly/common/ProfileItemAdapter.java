@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.journaly.R;
 import com.example.journaly.databinding.ProfileListItemBinding;
-import com.example.journaly.model.User;
+import com.example.journaly.model.users.User;
 
 import org.jetbrains.annotations.NotNull;
 

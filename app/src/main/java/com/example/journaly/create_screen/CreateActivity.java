@@ -1,10 +1,5 @@
 package com.example.journaly.create_screen;
 
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.FileProvider;
-
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -18,14 +13,22 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.FileProvider;
+
 import com.bumptech.glide.Glide;
 import com.example.journaly.R;
 import com.example.journaly.databinding.ActivityCreateBinding;
 import com.example.journaly.login.AuthManager;
-import com.example.journaly.model.CloudStorageManager;
-import com.example.journaly.model.FirebaseJournalRepository;
-import com.example.journaly.model.JournalEntry;
-import com.example.journaly.model.JournalRepository;
+import com.example.journaly.model.cloud_storage.CloudStorageManager;
+import com.example.journaly.model.journals.FirebaseJournalRepository;
+import com.example.journaly.model.journals.JournalEntry;
+import com.example.journaly.model.journals.JournalRepository;
+import com.example.journaly.model.journals.Mood;
+import com.example.journaly.model.nlp.CloudNlpClient;
+import com.example.journaly.model.nlp.NlpRepository;
 import com.example.journaly.utils.BitmapUtils;
 import com.example.journaly.utils.DateUtils;
 
@@ -54,6 +57,7 @@ public class CreateActivity extends AppCompatActivity {
     private static final String TAG = "CreateActivity";
     private File photoFile = null;
     private JournalRepository journalRepository = FirebaseJournalRepository.getInstance();
+    private NlpRepository nlpRepository = CloudNlpClient.getInstance();
     public static final String STATE_INTENT_KEY = "state";
     public static final String JOURNAL_ENTRY_INTENT_KEY = "entry";
     @Nullable
@@ -74,18 +78,18 @@ public class CreateActivity extends AppCompatActivity {
     private void extractDataFromIntent() {
         Intent intent = getIntent();
         mode = (Mode) intent.getSerializableExtra(STATE_INTENT_KEY);
-        if (mode == Mode.EDIT || mode == Mode.VIEW){
+        if (mode == Mode.EDIT || mode == Mode.VIEW) {
             intentJournalEntry = Parcels.unwrap(intent.getParcelableExtra(JOURNAL_ENTRY_INTENT_KEY));
         }
     }
 
 
-    private void initViews(){
+    private void initViews() {
         initToolbar();
         initDateViews();
         initCamera();
 
-        if (mode == Mode.EDIT || mode == Mode.VIEW){
+        if (mode == Mode.EDIT || mode == Mode.VIEW) {
             populateViewsWithIntentData();
         }
     }
@@ -95,23 +99,24 @@ public class CreateActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
-    private void initDateViews(){
+    private void initDateViews() {
         Date date = Calendar.getInstance().getTime();
         binding.dayNumberTv.setText(DateUtils.dayOfMonth(date));
         binding.monthAndYearTv.setText(DateUtils.monthAndYear(date));
     }
 
-    private void initCamera(){
+    private void initCamera() {
         binding.cameraFab.setOnClickListener(v -> dispatchCameraIntent());
     }
 
-    private void populateViewsWithIntentData(){
-        Map<Integer, Integer> moodToDrawable =  Map.of(
-                JournalEntry.NEGATIVE_MOOD, R.drawable.icons8_sad_48,
-                JournalEntry.NEUTRAL_MOOD, R.drawable.icons8_happy_48,
-                JournalEntry.POSITIVE_MOOD, R.drawable.icons8_happy_48
+    private void populateViewsWithIntentData() {
+        Map<Mood, Integer> moodToDrawable = Map.of(
+                Mood.NEGATIVE, R.drawable.icons8_sad_48,
+                Mood.NEUTRAL, R.drawable.icons8_neutral_48,
+                Mood.POSITIVE, R.drawable.icons8_happy_48
         );
 
+        binding.createMoodIcon.setVisibility(View.VISIBLE);
         binding.createMoodIcon.setImageResource(moodToDrawable.get(intentJournalEntry.getMood()));
         binding.dayNumberTv.setText(DateUtils.dayOfMonth(intentJournalEntry.getDate()));
         binding.monthAndYearTv.setText(DateUtils.monthAndYear(intentJournalEntry.getDate()));
@@ -119,12 +124,12 @@ public class CreateActivity extends AppCompatActivity {
         binding.mainTextEdittext.setText(intentJournalEntry.getText());
         binding.publicSwitch.setChecked(intentJournalEntry.isPublic());
 
-        if (intentJournalEntry.getContainsImage()){
+        if (intentJournalEntry.getContainsImage()) {
             binding.journalImage.setVisibility(View.VISIBLE);
             Glide.with(this).load(intentJournalEntry.getImageUri()).into(binding.journalImage);
         }
 
-        if (mode == Mode.VIEW){
+        if (mode == Mode.VIEW) {
             //Prevent any type of input, only display data
             binding.mainTextEdittext.setFocusable(false);
             binding.titleEdittext.setFocusable(false);
@@ -133,7 +138,7 @@ public class CreateActivity extends AppCompatActivity {
         }
     }
 
-    private void dispatchCameraIntent(){
+    private void dispatchCameraIntent() {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         // Create a File reference for future access
         photoFile = getPhotoFileUri("photo.jpg");
@@ -175,11 +180,11 @@ public class CreateActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-    private void saveEntry(){
+    private void saveEntry() {
         //saving functionality shouldn't be enabled if we're just viewing
         assert mode == Mode.CREATE || mode == Mode.EDIT;
 
-        if (!fieldsAreValid()){
+        if (!fieldsAreValid()) {
             Toasty.error(this, "Missing fields", Toast.LENGTH_SHORT, true).show();
             return;
         }
@@ -189,35 +194,40 @@ public class CreateActivity extends AppCompatActivity {
         String title = binding.titleEdittext.getText().toString();
         String text = binding.mainTextEdittext.getText().toString();
         boolean isPublic = binding.publicSwitch.isChecked();
-        int mood = JournalEntry.NEUTRAL_MOOD; //TODO: Sentiment Analysis API
         long unixTime = System.currentTimeMillis();
         String userId = AuthManager.getInstance().getLoggedInUserId();
 
-        uploadPhotoIfNeeded().subscribe(
-                (Uri uri) -> { //on success uploading image
-                    Log.i(TAG, "Successfully uploaded image");
-                    JournalEntry journalEntry = new JournalEntry(title, text, unixTime, isPublic, mood, userId, true, uri.toString());
-                    pushToDatabase(journalEntry);
-                    binding.createProgressBar.setVisibility(View.INVISIBLE);
-                    finish();
-                },
-                (Throwable throwable) -> { //on error uploading image
-                    Log.w(TAG, throwable);
-                    Toasty.error(CreateActivity.this, "There was an error uploading the image", Toast.LENGTH_SHORT, true).show();
-                    binding.createProgressBar.setVisibility(View.INVISIBLE);
-                },
-                () -> { //no image uploaded
-                    JournalEntry journalEntry = new JournalEntry(title, text, unixTime, isPublic, mood, userId, false, null);
-                    pushToDatabase(journalEntry);
-                    binding.createProgressBar.setVisibility(View.INVISIBLE);
-                    finish();
-                }
-        );
+        nlpRepository.performSentimentAnalysis(text)
+                //multiply score * magnitude to get a single sentiment value
+                .map(sentimentAnalysis -> sentimentAnalysis.getScore() * sentimentAnalysis.getMagnitude())
+                //subscribe to the sentimentAnalysis Task
+                .subscribe(sentiment -> uploadPhotoIfNeeded().subscribe( //Once we receive our sentiment, upload photo if needed
+                        (Uri uri) -> { //on success uploading image
+                            Log.i(TAG, "Successfully uploaded image");
+                            JournalEntry journalEntry = new JournalEntry(title, text, unixTime, isPublic, sentiment, userId, true, uri.toString());
+                            pushToDatabase(journalEntry);
+                            hideProgressBar();
+                            finish();
+                        },
+                        (Throwable throwable) -> { //on error uploading image
+                            Log.w(TAG, throwable);
+                            Toasty.error(CreateActivity.this, "There was an error uploading the image", Toast.LENGTH_SHORT, true).show();
+                            hideProgressBar();
+                        },
+                         () -> { //no image uploaded
+                            JournalEntry journalEntry = new JournalEntry(title, text, unixTime, isPublic, sentiment, userId, false, null);
+                            pushToDatabase(journalEntry);
+                            hideProgressBar();
+                            finish();
+                        }
+                ));
+
+
     }
 
-    private Maybe<Uri> uploadPhotoIfNeeded(){
+    private Maybe<Uri> uploadPhotoIfNeeded() {
         return Maybe.create(emitter -> {
-            if (photoFile == null){
+            if (photoFile == null) {
                 emitter.onComplete();
                 return;
             }
@@ -231,15 +241,15 @@ public class CreateActivity extends AppCompatActivity {
         });
     }
 
-    private void pushToDatabase(JournalEntry entry){
-        if (mode == Mode.EDIT){
+    private void pushToDatabase(JournalEntry entry) {
+        if (mode == Mode.EDIT) {
             entry.setId(intentJournalEntry.getId());
         }
         journalRepository.addOrUpdate(entry);
     }
 
     private void deleteEntry() {
-        assert(mode == Mode.EDIT); //delete functionality should not even be enabled if we're not in edit mode
+        assert (mode == Mode.EDIT); //delete functionality should not even be enabled if we're not in edit mode
         showConfirmDeleteDialog((dialog, which) -> {
             journalRepository.delete(intentJournalEntry);
             finish();
@@ -253,12 +263,19 @@ public class CreateActivity extends AppCompatActivity {
         return title.length() > 0 && text.length() > 0;
     }
 
-    private void showConfirmDeleteDialog(DialogInterface.OnClickListener onConfirm){
+    private void showConfirmDeleteDialog(DialogInterface.OnClickListener onConfirm) {
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage("Are you sure you want to delete this journal entry?");
         builder.setNegativeButton("Cancel", (dialogInterface, i) -> dialogInterface.cancel());
         builder.setPositiveButton("Delete", onConfirm);
         builder.create().show();
+    }
+
+    private void hideProgressBar(){
+        //hiding the progress bar is done at the end of async operations (uploading an entry to the database)
+        //which run on a separate thread. Changes to the UI must run on the UI thread. Thus we force
+        //the change to run on the UI thread.
+        runOnUiThread(() -> binding.createProgressBar.setVisibility(View.INVISIBLE));
     }
 
     @Override
@@ -283,10 +300,10 @@ public class CreateActivity extends AppCompatActivity {
         if (item.getItemId() == android.R.id.home) {
             finish();
             return true;
-        } else if (item.getItemId() == R.id.action_save){
+        } else if (item.getItemId() == R.id.action_save) {
             saveEntry();
             return true;
-        } else if (item.getItemId() == R.id.action_delete){
+        } else if (item.getItemId() == R.id.action_delete) {
             deleteEntry();
             return true;
         }

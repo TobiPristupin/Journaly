@@ -5,7 +5,7 @@ import androidx.fragment.app.Fragment;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import com.example.journaly.common.JournalsListViewerFragment;
-import com.example.journaly.model.User;
+import com.example.journaly.model.users.User;
 
 import org.jetbrains.annotations.NotNull;
 
