@@ -118,8 +118,8 @@ public class CreateActivity extends AppCompatActivity {
 
         binding.createMoodIcon.setVisibility(View.VISIBLE);
         binding.createMoodIcon.setImageResource(moodToDrawable.get(intentJournalEntry.getMood()));
-        binding.dayNumberTv.setText(DateUtils.dayOfMonth(intentJournalEntry.getDate()));
-        binding.monthAndYearTv.setText(DateUtils.monthAndYear(intentJournalEntry.getDate()));
+        binding.dayNumberTv.setText(DateUtils.dayOfMonth(intentJournalEntry.getCreatedAt()));
+        binding.monthAndYearTv.setText(DateUtils.monthAndYear(intentJournalEntry.getCreatedAt()));
         binding.titleEdittext.setText(intentJournalEntry.getTitle());
         binding.mainTextEdittext.setText(intentJournalEntry.getText());
         binding.publicSwitch.setChecked(intentJournalEntry.isPublic());
@@ -201,7 +201,7 @@ public class CreateActivity extends AppCompatActivity {
                 //multiply score * magnitude to get a single sentiment value
                 .map(sentimentAnalysis -> sentimentAnalysis.getScore() * sentimentAnalysis.getMagnitude())
                 //subscribe to the sentimentAnalysis Task
-                .subscribe(sentiment -> uploadPhotoIfNeeded().subscribe( //Once we receive our sentiment, upload photo if needed
+                .subscribe(sentiment -> uploadPhotoIfNeeded().subscribe( //Once we receive our sentiment, upload photo (if needed)
                         (Uri uri) -> { //on success uploading image
                             Log.i(TAG, "Successfully uploaded image");
                             JournalEntry journalEntry = new JournalEntry(title, text, unixTime, isPublic, sentiment, userId, true, uri.toString());
@@ -209,7 +209,7 @@ public class CreateActivity extends AppCompatActivity {
                             hideProgressBar();
                             finish();
                         },
-                        (Throwable throwable) -> { //on error uploading image
+                        (Throwable throwable) -> { //on error
                             Log.w(TAG, throwable);
                             Toasty.error(CreateActivity.this, "There was an error uploading the image", Toast.LENGTH_SHORT, true).show();
                             hideProgressBar();
@@ -221,8 +221,6 @@ public class CreateActivity extends AppCompatActivity {
                             finish();
                         }
                 ));
-
-
     }
 
     private Maybe<Uri> uploadPhotoIfNeeded() {

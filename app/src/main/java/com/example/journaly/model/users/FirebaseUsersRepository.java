@@ -52,7 +52,7 @@ public class FirebaseUsersRepository implements UsersRepository {
                 throw new RuntimeException("Attempting to create user that already exists. Aborting since this operation will overwrite existing data");
             }
 
-            User user = new User(userId, photoUri, email, null, null, null, null);
+            User user = User.withDefaultValues(userId, photoUri, email);
             userDatabaseRef.child(userId).setValue(user);
         });
     }
@@ -231,4 +231,33 @@ public class FirebaseUsersRepository implements UsersRepository {
         });
     }
 
+    @Override
+    public Completable updateThreshold(double negativityThreshold) {
+        return Completable.create(emitter -> {
+            String loggedInId = AuthManager.getInstance().getLoggedInUserId();
+            userDatabaseRef.child(loggedInId).child("negativityThreshold").setValue(negativityThreshold)
+                    .addOnCompleteListener(task -> emitter.onComplete())
+                    .addOnFailureListener(e -> emitter.onError(e));
+        });
+    }
+
+    @Override
+    public Completable updateLastAnalyzed(String lastAnalyzed) {
+        return Completable.create(emitter -> {
+            String loggedInId = AuthManager.getInstance().getLoggedInUserId();
+            userDatabaseRef.child(loggedInId).child("idOfLastJournalEntryAnalyzed").setValue(lastAnalyzed)
+                    .addOnCompleteListener(task -> emitter.onComplete())
+                    .addOnFailureListener(e -> emitter.onError(e));
+        });
+    }
+
+    @Override
+    public Completable updateInNeed(boolean inNeed) {
+        return Completable.create(emitter -> {
+            String loggedInId = AuthManager.getInstance().getLoggedInUserId();
+            userDatabaseRef.child(loggedInId).child("inNeed").setValue(inNeed)
+                    .addOnCompleteListener(task -> emitter.onComplete())
+                    .addOnFailureListener(e -> emitter.onError(e));
+        });
+    }
 }

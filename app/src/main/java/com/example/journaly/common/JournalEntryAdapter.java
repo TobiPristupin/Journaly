@@ -78,8 +78,8 @@ public class JournalEntryAdapter extends RecyclerView.Adapter<JournalEntryAdapte
         private void bind(JournalEntry entry) {
             initViewsDependentOnUser(entry);
             binding.moodIcon.setImageResource(moodToDrawable.get(entry.getMood()));
-            binding.entryDayNumber.setText(DateUtils.dayOfMonth(entry.getDate()));
-            binding.entryMonthYear.setText(DateUtils.monthAndYear(entry.getDate()));
+            binding.entryDayNumber.setText(DateUtils.dayOfMonth(entry.getCreatedAt()));
+            binding.entryMonthYear.setText(DateUtils.monthAndYear(entry.getCreatedAt()));
             binding.entryTitle.setText(entry.getTitle());
             binding.entryText.setText(entry.getText());
             binding.publicIcon.setVisibility(entry.isPublic() ? View.VISIBLE : View.GONE);

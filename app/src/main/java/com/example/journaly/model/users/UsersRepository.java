@@ -29,4 +29,10 @@ public interface UsersRepository {
 
     Completable unfollow(String userIdToUnfollow);
 
+    Completable updateThreshold(double negativityThreshold);
+
+    Completable updateLastAnalyzed(String lastAnalyzed);
+
+    Completable updateInNeed(boolean inNeed);
+
 }

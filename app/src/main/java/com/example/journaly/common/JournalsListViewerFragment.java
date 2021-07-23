@@ -14,9 +14,10 @@ import com.example.journaly.create_screen.CreateActivity;
 import com.example.journaly.databinding.FragmentJournalsListViewerBinding;
 import com.example.journaly.login.AuthManager;
 import com.example.journaly.model.journals.FirebaseJournalRepository;
-import com.example.journaly.model.users.FirebaseUsersRepository;
 import com.example.journaly.model.journals.JournalEntry;
 import com.example.journaly.model.journals.JournalRepository;
+import com.example.journaly.model.users.FirebaseUsersRepository;
+import com.example.journaly.model.users.User;
 import com.example.journaly.model.users.UsersRepository;
 import com.example.journaly.profile_screen.ProfileActivity;
 
@@ -24,34 +25,26 @@ import org.parceler.Parcels;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
+import io.reactivex.rxjava3.core.ObservableSource;
 import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.functions.Function;
 
 public class JournalsListViewerFragment extends Fragment {
 
-    public enum Mode {
-        USER_PROFILE, //show posts only from certain user
-        HOME_FEED, //show home feed
-    }
-
     public static final String TAG = "JournalsListViewerFragment";
-    private FragmentJournalsListViewerBinding binding;
-
     private static final String MODE_PARAM = "mode";
     private static final String USER_PARAM = "user";
+    private FragmentJournalsListViewerBinding binding;
     private Mode mode;
     private String userId;
-
+    private User user;
     private JournalEntryAdapter journalAdapter;
-    private List<JournalEntry> allJournals = new ArrayList<>(); //holds all loaded journals
     private List<JournalEntry> displayedJournals = new ArrayList<>(); //holds all currently displayed journals according to filtering
     private JournalRepository journalRepository = FirebaseJournalRepository.getInstance();
     private UsersRepository usersRepository = FirebaseUsersRepository.getInstance();
     private List<Disposable> dataSubscriptions = new ArrayList<>();
-
 
     public JournalsListViewerFragment() {
         // Required empty public constructor
@@ -88,35 +81,35 @@ public class JournalsListViewerFragment extends Fragment {
     }
 
     private void subscribeToData() {
-        Disposable subscription1 = journalRepository.fetch()
-                .map((Function<Map<String, JournalEntry>, List<JournalEntry>>) stringJournalEntryMap -> new ArrayList<>(stringJournalEntryMap.values()))
-                .subscribe(journalEntries -> {
-                    allJournals.clear();
-                    allJournals.addAll(journalEntries);
+        /*
+        use .take(1) since we don't want continuous updates on this user (if the user we're to be modified in the database).
+        we just want to fetch it once.
+        */
+        Disposable disposable = usersRepository.fetchUserFromId(AuthManager.getInstance().getLoggedInUserId()).take(1)
+                .doOnNext(user -> {
+                    JournalsListViewerFragment.this.user = user;
+                })
+                .flatMap((Function<User, ObservableSource<List<JournalEntry>>>) user -> {
+                    return journalRepository.fetch();
+                })
+                .subscribe(entries -> {
+                    updateRecyclerView(entries);
                 }, throwable -> {
                     Log.w(TAG, throwable);
                 });
 
-        Disposable subscription2 = journalRepository.fetch()
-                .map(stringJournalEntryMap -> {
-                    //why are we using Java's stream filter instead of RxJava filter? Because RxJava
-                    //filter operates only on an observable of items, and in this case we have an
-                    //observable of one item, that item being a map containing all journal entries. We
-                    //could use observableToIteratable, then filter, then toList, but that introduces some
-                    //other issues explained here: https://github.com/ReactiveX/RxJava/issues/3861.
-                    return stringJournalEntryMap.values().stream()
-                            .filter(journalEntry -> filterPost(journalEntry))
-                            .sorted()
-                            .collect(Collectors.toList());
-                })
-                .subscribe(filteredJournalEntries -> {
-                    displayedJournals.clear();
-                    displayedJournals.addAll(filteredJournalEntries);
-                    journalAdapter.notifyDataSetChanged();
-                }, throwable -> Log.w(TAG, throwable));
 
-        dataSubscriptions.add(subscription1);
-        dataSubscriptions.add(subscription2);
+        dataSubscriptions.add(disposable);
+    }
+
+    private void updateRecyclerView(List<JournalEntry> entries) {
+        List<JournalEntry> filtered = entries.stream()
+                .filter(this::filterPost)
+                .sorted()
+                .collect(Collectors.toList());
+        displayedJournals.clear();
+        displayedJournals.addAll(filtered);
+        journalAdapter.notifyDataSetChanged();
     }
 
     private void initViews() {
@@ -136,7 +129,7 @@ public class JournalsListViewerFragment extends Fragment {
         binding.entriesRecyclerview.setLayoutManager(layoutManager);
     }
 
-    private void onJournalUsernameClick(JournalEntry entry){
+    private void onJournalUsernameClick(JournalEntry entry) {
         Intent i = new Intent(getContext(), ProfileActivity.class);
         i.putExtra(ProfileActivity.INTENT_USER_ID_KEY, entry.getUserId());
         startActivity(i);
@@ -158,9 +151,9 @@ public class JournalsListViewerFragment extends Fragment {
     }
 
     private boolean filterPost(JournalEntry journalEntry) {
+        String loggedInId = AuthManager.getInstance().getLoggedInUserId();
         if (mode == Mode.USER_PROFILE) {
-            //if the user we're viewing is the same one that is logged in
-            if (userId.equals(AuthManager.getInstance().getLoggedInUserId())) {
+            if (userId.equals(loggedInId)) { //if the user we're viewing is the same one that is logged in
                 //show all posts from that user
                 return journalEntry.getUserId().equals(userId);
             } else { //user we're viewing is not the one logged in
@@ -168,8 +161,12 @@ public class JournalsListViewerFragment extends Fragment {
                 return journalEntry.getUserId().equals(userId) && journalEntry.isPublic();
             }
         } else if (mode == Mode.HOME_FEED) {
-            //show personal posts or public posts from other users
-            return journalEntry.getUserId().equals(userId) || journalEntry.isPublic();
+            if (journalEntry.getUserId().equals(loggedInId)){
+                return true; //show personal posts
+            } else {
+                //show posts from other users if post is public and logged in user follows creator
+                return journalEntry.isPublic() && user.getFollowingAsList().contains(loggedInId);
+            }
         }
 
         throw new RuntimeException("Unreachable");
@@ -183,5 +180,10 @@ public class JournalsListViewerFragment extends Fragment {
                 disposable.dispose();
             }
         }
+    }
+
+    public enum Mode {
+        USER_PROFILE, //show posts only from certain user
+        HOME_FEED, //show home feed
     }
 }

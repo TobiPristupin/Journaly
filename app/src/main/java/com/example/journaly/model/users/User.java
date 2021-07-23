@@ -1,10 +1,8 @@
 package com.example.journaly.model.users;
 
-import android.net.Uri;
-
 import androidx.annotation.Nullable;
 
-import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.Exclude;
 
 import org.parceler.Parcel;
 
@@ -26,22 +24,50 @@ public class User {
     @Nullable
     private String photoUri;
     private String email;
-    @Nullable private String bio;
-    @Nullable private String contactInfo;
-    @Nullable private Map<String, String> followers;
-    @Nullable private Map<String, String> following;
+    @Nullable
+    private String bio;
+    @Nullable
+    private String contactInfo;
+    @Nullable
+    private Map<String, String> followers;
+    @Nullable
+    private Map<String, String> following;
 
-    public User(){
+    //Threshold used to determine if a user is "in need".
+    private double negativityThreshold;
+
+    @Exclude
+    //Threshold used to determine if a user can have their negativity threshold increased
+    private final double positivityThreshold = 5;
+
+    //Default negativity threshold that all users start with.
+    @Exclude
+    public static final double DEFAULT_NEGATIVITY_THRESHOLD = -3.5;
+
+    /*
+    To avoid double counting an entry when determining if a user is in need, we keep track of the
+    id of the last analyzed entry. A more detailed explanation of the algorithm used to determine if
+    a user is in need can be found in UserInNeedUtils.java
+    */
+    private String idOfLastJournalEntryAnalyzed;
+
+    //is this user currently in need
+    private boolean isInNeed;
+
+    public User() {
         //empty constructor for firebase
     }
 
     public User(String uid,
-                @org.jetbrains.annotations.Nullable String photoUri,
+                @Nullable String photoUri,
                 String email,
-                @org.jetbrains.annotations.Nullable String bio,
-                @org.jetbrains.annotations.Nullable String contactInfo,
-                @org.jetbrains.annotations.Nullable Map<String, String> followers,
-                @org.jetbrains.annotations.Nullable Map<String, String> following) {
+                @Nullable String bio,
+                @Nullable String contactInfo,
+                @Nullable Map<String, String> followers,
+                @Nullable Map<String, String> following,
+                double negativityThreshold,
+                String idOfLastJournalEntryAnalyzed,
+                boolean isInNeed) {
         this.uid = uid;
         this.photoUri = photoUri;
         this.email = email;
@@ -49,6 +75,13 @@ public class User {
         this.contactInfo = contactInfo;
         this.followers = followers;
         this.following = following;
+        this.negativityThreshold = negativityThreshold;
+        this.idOfLastJournalEntryAnalyzed = idOfLastJournalEntryAnalyzed;
+        this.isInNeed = isInNeed;
+    }
+
+    public static User withDefaultValues(String uid, @Nullable String photoUri, String email){
+        return new User(uid, photoUri, email, null, null, null, null, User.DEFAULT_NEGATIVITY_THRESHOLD, "", false);
     }
 
     public String getUid() {
@@ -59,11 +92,11 @@ public class User {
         this.uid = uid;
     }
 
-    public @org.jetbrains.annotations.Nullable String getPhotoUri() {
+    public @Nullable String getPhotoUri() {
         return photoUri;
     }
 
-    public void setPhotoUri(@org.jetbrains.annotations.Nullable String photoUri) {
+    public void setPhotoUri(@Nullable String photoUri) {
         this.photoUri = photoUri;
     }
 
@@ -75,39 +108,39 @@ public class User {
         this.email = email;
     }
 
-    public String getDisplayName(){
+    public String getDisplayName() {
         //emails are of the form username@journaly.com, so we must extract username
         return this.email.split("@")[0];
     }
 
-    public @org.jetbrains.annotations.Nullable String getBio() {
+    public @Nullable String getBio() {
         return bio;
     }
 
-    public void setBio(@org.jetbrains.annotations.Nullable String bio) {
+    public void setBio(@Nullable String bio) {
         this.bio = bio;
     }
 
-    public @org.jetbrains.annotations.Nullable String getContactInfo() {
+    public @Nullable String getContactInfo() {
         return contactInfo;
     }
 
-    public void setContactInfo(@org.jetbrains.annotations.Nullable String contactInfo) {
+    public void setContactInfo(@Nullable String contactInfo) {
         this.contactInfo = contactInfo;
     }
 
-    public @org.jetbrains.annotations.Nullable Map<String, String> getFollowers() {
+    public @Nullable Map<String, String> getFollowers() {
         return followers;
     }
 
-    public @org.jetbrains.annotations.Nullable List<String> getFollowersAsList() {
-        if (followers == null){
+    public @Nullable List<String> getFollowersAsList() {
+        if (followers == null) {
             return new ArrayList<>();
         }
         return new ArrayList<>(followers.values());
     }
 
-    public void setFollowers(@org.jetbrains.annotations.Nullable Map<String, String> followers) {
+    public void setFollowers(@Nullable Map<String, String> followers) {
         this.followers = followers;
     }
 
@@ -116,14 +149,43 @@ public class User {
         return following;
     }
 
-    public @org.jetbrains.annotations.Nullable List<String> getFollowingAsList() {
-        if (following == null){
+    public @Nullable List<String> getFollowingAsList() {
+        if (following == null) {
             return new ArrayList<>();
         }
         return new ArrayList<>(following.values());
     }
 
-    public void setFollowing(@org.jetbrains.annotations.Nullable Map<String, String> following) {
+    public void setFollowing(@Nullable Map<String, String> following) {
         this.following = following;
+    }
+
+    public double getNegativityThreshold() {
+        return negativityThreshold;
+    }
+
+    public void setNegativityThreshold(double negativityThreshold) {
+        this.negativityThreshold = negativityThreshold;
+    }
+
+    public String getIdOfLastJournalEntryAnalyzed() {
+        return idOfLastJournalEntryAnalyzed;
+    }
+
+    public void setIdOfLastJournalEntryAnalyzed(String idOfLastJournalEntryAnalyzed) {
+        this.idOfLastJournalEntryAnalyzed = idOfLastJournalEntryAnalyzed;
+    }
+
+    public boolean isInNeed() {
+        return isInNeed;
+    }
+
+    public void setInNeed(boolean inNeed) {
+        isInNeed = inNeed;
+    }
+
+    @Exclude
+    public double getPositivityThreshold() {
+        return positivityThreshold;
     }
 }

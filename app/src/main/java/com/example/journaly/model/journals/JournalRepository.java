@@ -1,5 +1,6 @@
 package com.example.journaly.model.journals;
 
+import java.util.List;
 import java.util.Map;
 
 import io.reactivex.rxjava3.core.Observable;
@@ -12,5 +13,5 @@ public interface JournalRepository {
 
     void delete(JournalEntry journalEntry);
 
-    Observable<Map<String, JournalEntry>> fetch();
+    Observable<List<JournalEntry>> fetch();
 }
