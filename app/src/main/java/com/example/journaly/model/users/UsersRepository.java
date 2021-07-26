@@ -19,6 +19,8 @@ public interface UsersRepository {
 
     Observable<List<User>> fetchAllUsers();
 
+    Observable<List<User>> fetchUsersInNeed();
+
     Completable updateUserBio(String bio);
 
     Completable updateUserContactInfo(String contactInfo);

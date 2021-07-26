@@ -165,7 +165,7 @@ public class JournalsListViewerFragment extends Fragment {
                 return true; //show personal posts
             } else {
                 //show posts from other users if post is public and logged in user follows creator
-                return journalEntry.isPublic() && user.getFollowingAsList().contains(loggedInId);
+                return journalEntry.isPublic() && user.getFollowingAsList().contains(journalEntry.getUserId());
             }
         }
 

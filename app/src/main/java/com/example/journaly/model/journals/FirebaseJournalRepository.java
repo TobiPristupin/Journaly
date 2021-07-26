@@ -140,7 +140,7 @@ public class FirebaseJournalRepository implements JournalRepository {
             UserInNeedUtils.Response  response = UserInNeedUtils.isUserInNeed(entries, user);
             if (response.isInNeed()){
                 usersInNeedDatabaseRef.push().setValue(user.getUid());
-                usersRepository.updateInNeed(true);
+                usersRepository.updateInNeed(true).subscribe();
             }
 
             if (user.getNegativityThreshold() != response.getUpdatedNegativityThreshold()){

@@ -10,6 +10,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.StorageReference;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -20,7 +21,11 @@ import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.ObservableEmitter;
 import io.reactivex.rxjava3.core.ObservableOnSubscribe;
+import io.reactivex.rxjava3.core.ObservableSource;
 import io.reactivex.rxjava3.core.Single;
+import io.reactivex.rxjava3.functions.Function;
+
+import static io.reactivex.rxjava3.core.Observable.fromIterable;
 
 //Use this class for creating a new user object in database, and fetching user data from database. If
 //you want to quickly know who is the currently logged in user, use AuthManager class. This class interfaces
@@ -31,7 +36,9 @@ public class FirebaseUsersRepository implements UsersRepository {
     private static FirebaseUsersRepository instance = null;
     private FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
     private DatabaseReference userDatabaseRef = firebaseDatabase.getReference().child("users");
+    private DatabaseReference userInNeedDatabaseRef = firebaseDatabase.getReference().child("users_in_need");
     private Observable<List<User>> allUsersObservable = null;
+    private Observable<List<User>> usersInNeedObservable = null;
 
     private FirebaseUsersRepository() {
 
@@ -110,7 +117,7 @@ public class FirebaseUsersRepository implements UsersRepository {
     private Observable<List<User>> createAllUsersObservable(){
         return Observable.create((ObservableOnSubscribe<List<User>>) emitter -> {
             //create a firebase db listener that relays data to the emitter
-            ValueEventListener dbListener = createDatabaseConnectionForAllUsers(emitter);
+            ValueEventListener dbListener = createDatabaseConnectionForListOfUsers(emitter);
             userDatabaseRef.addValueEventListener(dbListener);
             //when the emitter is canceled, remember to cancel the database listener also
             emitter.setCancellable(() -> userDatabaseRef.removeEventListener(dbListener));
@@ -122,7 +129,45 @@ public class FirebaseUsersRepository implements UsersRepository {
         */
     }
 
-    private ValueEventListener createDatabaseConnectionForAllUsers(ObservableEmitter<List<User>> emitter){
+    @Override
+    public Observable<List<User>> fetchUsersInNeed() {
+        /*
+        we don't want to create a new observable every time (which in turn creates a new db connection).
+        Instead we want to cache the observable. We can do this since this class is a singleton.
+        */
+        if (usersInNeedObservable == null){
+            usersInNeedObservable = createUsersInNeedObservable();
+        }
+
+        return usersInNeedObservable;
+    }
+
+    private Observable<List<User>> createUsersInNeedObservable(){
+        //users in need table only stores ids. This observable will fetch that list of ids.
+        Observable<String> userIdsInNeed = Observable.create(emitter -> {
+            userInNeedDatabaseRef.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
+                    for (DataSnapshot data : snapshot.getChildren()) {
+                        emitter.onNext(data.getValue(String.class));
+                    }
+                    emitter.onComplete();
+                }
+
+                @Override
+                public void onCancelled(@NonNull @NotNull DatabaseError error) {
+                    Log.w(TAG, error.getMessage());
+                }
+            });
+        });
+
+        return userIdsInNeed
+                .flatMap(userId -> fetchUserFromId(userId).take(1)) //for each userId, fetch the corresponding user. Take only the first update
+                .toList() //convert all those User objects into one List<User>
+                .toObservable();    //convert List<User> into Observable<List<User>>
+    }
+
+    private ValueEventListener createDatabaseConnectionForListOfUsers(ObservableEmitter<List<User>> emitter){
         return new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
