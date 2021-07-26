@@ -87,13 +87,6 @@ public class UserInNeedUtils {
 
 
     public static Response isUserInNeed(List<JournalEntry> entries, User user){
-        if (user.isInNeed()){
-            //user is already in need, no need to make him in need, again poor guy :(((
-            //if a user is already in need this method should not be called in the first place, so this is
-            //just an extra safeguard
-            return new Response(false, user.getNegativityThreshold(), user.getIdOfLastJournalEntryAnalyzed());
-        }
-
         List<JournalEntry> entriesToAnalyze = entries.stream()
                 .filter(journalEntry -> journalEntry.getUserId().equals(user.getUid()))
                 .filter(journalEntry -> journalEntry.getId().compareTo(user.getIdOfLastJournalEntryAnalyzed()) > 0)
@@ -121,7 +114,7 @@ public class UserInNeedUtils {
         }
 
 
-        return new Response(false, user.getNegativityThreshold(), user.getIdOfLastJournalEntryAnalyzed());
+        return new Response(user.isInNeed(), user.getNegativityThreshold(), user.getIdOfLastJournalEntryAnalyzed());
     }
 
 }

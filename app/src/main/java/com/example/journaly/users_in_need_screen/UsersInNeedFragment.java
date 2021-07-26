@@ -1,8 +1,10 @@
 package com.example.journaly.users_in_need_screen;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
@@ -73,7 +75,7 @@ public class UsersInNeedFragment extends Fragment {
 
             @Override
             public void onReachOutButtonClick(int position) {
-
+                reachOutToUser(usersInNeed.get(position));
             }
 
             @Override
@@ -87,7 +89,8 @@ public class UsersInNeedFragment extends Fragment {
     }
 
     private void subscribeToData(){
-        Disposable subscription = usersRepository.fetchUsersInNeed().subscribe(users -> {
+        Disposable subscription = usersRepository.fetchUsersInNeed()
+                .subscribe(users -> {
             users = users.stream()
                     .filter(user -> {
                         String loggedInId = AuthManager.getInstance().getLoggedInUserId();
@@ -105,6 +108,21 @@ public class UsersInNeedFragment extends Fragment {
         });
 
         compositeDisposable.add(subscription);
+    }
+
+    private void reachOutToUser(User user){
+        showReachOutDialog(user, (dialog, which) -> {
+            usersRepository.removeUserInNeed(user.getUid()).subscribe();
+        });
+    }
+
+    private void showReachOutDialog(User user, DialogInterface.OnClickListener onPositiveClick){
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+
+        builder.setMessage("This user is in need, and needs someone to talk to. Do you promise to reach out to them?");
+        builder.setNegativeButton("Cancel", (dialogInterface, i) -> dialogInterface.cancel());
+        builder.setPositiveButton("Yes", onPositiveClick);
+        builder.create().show();
     }
 
     private void onUserClick(User user) {
