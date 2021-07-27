@@ -41,4 +41,6 @@ public interface UsersRepository {
 
     Completable updateInNeed(String userId, boolean inNeed);
 
+    Completable updateProfilePicture(String url);
+
 }

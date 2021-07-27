@@ -337,6 +337,16 @@ public class FirebaseUsersRepository implements UsersRepository {
     }
 
     @Override
+    public Completable updateProfilePicture(String url) {
+        return Completable.create(emitter -> {
+            String loggedInId = AuthManager.getInstance().getLoggedInUserId();
+            userDatabaseRef.child(loggedInId).child("photoUri").setValue(url)
+                    .addOnCompleteListener(task -> emitter.onComplete())
+                    .addOnFailureListener(e -> emitter.onError(e));
+        });
+    }
+
+    @Override
     public Completable updateInNeed(String userId, boolean inNeed) {
         return Completable.create(emitter -> {
             String loggedInId = AuthManager.getInstance().getLoggedInUserId();

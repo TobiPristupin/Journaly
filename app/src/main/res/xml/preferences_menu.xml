@@ -6,6 +6,11 @@
         android:icon="@drawable/ic_baseline_account_circle_24">
 
         <Preference
+            android:key="change_pfp"
+            android:title="Change Profile Picture"
+            />
+
+        <Preference
             android:key="preference_logout"
             android:title="Logout"
             />
