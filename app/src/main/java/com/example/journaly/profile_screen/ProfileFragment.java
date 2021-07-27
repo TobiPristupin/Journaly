@@ -21,6 +21,7 @@ import com.example.journaly.model.users.FirebaseUsersRepository;
 import com.example.journaly.model.users.User;
 import com.example.journaly.model.users.UsersRepository;
 import com.example.journaly.settings_screen.SettingsActivity;
+import com.example.journaly.utils.AnimationUtils;
 import com.google.android.material.tabs.TabLayoutMediator;
 
 import org.jetbrains.annotations.NotNull;
@@ -158,10 +159,8 @@ public class ProfileFragment extends Fragment {
         binding.followingCount.setText(String.valueOf(followIngCount));
 
         String loggedInId = AuthManager.getInstance().getLoggedInUserId();
-        if (user.getUid().equals(loggedInId)){
-            //if we're viewing our own profile, no need to show the "follow" button
-            binding.followButton.setVisibility(View.GONE);
-        } else {
+        if (!user.getUid().equals(loggedInId)){
+            AnimationUtils.fadeIn(500, 200, binding.followButton);
             //logged in user is viewing another user
             if (followers != null && followers.contains(loggedInId)){ //already following
                 binding.followButton.setBackgroundColor(getResources().getColor(R.color.unfollow_red));

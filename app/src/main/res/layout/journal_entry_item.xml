@@ -10,7 +10,7 @@
     android:clickable="true"
     android:focusable="true"
     android:foreground="?android:attr/selectableItemBackground"
-    app:cardBackgroundColor="@color/bg_color"
+    app:cardBackgroundColor="@color/primary_light"
     app:cardCornerRadius="20dp"
     app:cardElevation="16dp"
     app:contentPaddingBottom="16dp">
@@ -30,6 +30,7 @@
             android:clickable="true"
             android:focusable="true"
             android:foreground="?android:attr/selectableItemBackground"
+            android:transitionName="pfp_transition"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
@@ -70,6 +71,15 @@
             app:layout_constraintTop_toBottomOf="@+id/entry_pfp"
             tools:text="13" />
 
+        <View
+            android:id="@+id/view3"
+            android:layout_width="0dp"
+            android:layout_height="8dp"
+            android:background="@color/accent"
+            app:layout_constraintEnd_toEndOf="@+id/entry_day_number"
+            app:layout_constraintStart_toStartOf="@+id/entry_day_number"
+            app:layout_constraintTop_toBottomOf="@+id/entry_day_number" />
+
         <TextView
             android:id="@+id/entry_month_year"
             android:layout_width="wrap_content"
@@ -92,7 +102,7 @@
             android:textSize="18sp"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="@+id/entry_day_number"
-            app:layout_constraintTop_toBottomOf="@+id/entry_day_number"
+            app:layout_constraintTop_toBottomOf="@+id/view3"
             tools:text="Hello" />
 
         <TextView

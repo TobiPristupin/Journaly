@@ -9,8 +9,8 @@
     <color name="icons">#212121</color>
     <color name="divider">#BDBDBD</color>
     <color name="journal_entry_color">#FDECD3</color>
-    <color name="bg_color">#FAE0BB</color>
-<!--    <color name="bg_color">#F8F8F8</color>-->
+<!--    <color name="bg_color">#FAE0BB</color>-->
+    <color name="bg_color">#FFFFFF</color>
     <color name="follow_green">#8BC34A</color>
     <color name="unfollow_red">#F44336</color>
 </resources>

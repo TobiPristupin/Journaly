@@ -1,5 +1,6 @@
 package com.example.journaly.create_screen;
 
+import android.app.DatePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -55,13 +56,16 @@ public class CreateActivity extends AppCompatActivity {
     private ActivityCreateBinding binding;
     private static final int REQUEST_IMAGE_CAPTURE_CODE = 1;
     private static final String TAG = "CreateActivity";
+
     private File photoFile = null;
+    private Calendar entryDate = Calendar.getInstance();
+
     private JournalRepository journalRepository = FirebaseJournalRepository.getInstance();
     private NlpRepository nlpRepository = CloudNlpClient.getInstance();
     public static final String STATE_INTENT_KEY = "state";
     public static final String JOURNAL_ENTRY_INTENT_KEY = "entry";
     @Nullable
-    private JournalEntry intentJournalEntry; //pased from intent
+    private JournalEntry intentJournalEntry; //passed from intent
     @NotNull
     private CreateActivity.Mode mode; //passed from intent
 
@@ -100,9 +104,11 @@ public class CreateActivity extends AppCompatActivity {
     }
 
     private void initDateViews() {
-        Date date = Calendar.getInstance().getTime();
-        binding.dayNumberTv.setText(DateUtils.dayOfMonth(date));
-        binding.monthAndYearTv.setText(DateUtils.monthAndYear(date));
+        binding.dayNumberTv.setText(DateUtils.dayOfMonth(entryDate.getTime()));
+        binding.monthAndYearTv.setText(DateUtils.monthAndYear(entryDate.getTime()));
+        binding.createDateSpinner.setOnClickListener(v -> {
+            showDatePickerDialog();
+        });
     }
 
     private void initCamera() {
@@ -116,13 +122,20 @@ public class CreateActivity extends AppCompatActivity {
                 Mood.POSITIVE, R.drawable.icons8_happy_48
         );
 
+        entryDate = Calendar.getInstance();
+        entryDate.setTimeInMillis(intentJournalEntry.getDate());
+        binding.dayNumberTv.setText(DateUtils.dayOfMonth(entryDate.getTime()));
+        binding.monthAndYearTv.setText(DateUtils.monthAndYear(entryDate.getTime()));
+
         binding.createMoodIcon.setVisibility(View.VISIBLE);
         binding.createMoodIcon.setImageResource(moodToDrawable.get(intentJournalEntry.getMood()));
-        binding.dayNumberTv.setText(DateUtils.dayOfMonth(intentJournalEntry.getCreatedAt()));
-        binding.monthAndYearTv.setText(DateUtils.monthAndYear(intentJournalEntry.getCreatedAt()));
+        binding.dayNumberTv.setText(DateUtils.dayOfMonth(intentJournalEntry.getDate()));
+        binding.monthAndYearTv.setText(DateUtils.monthAndYear(intentJournalEntry.getDate()));
         binding.titleEdittext.setText(intentJournalEntry.getTitle());
         binding.mainTextEdittext.setText(intentJournalEntry.getText());
         binding.publicSwitch.setChecked(intentJournalEntry.isPublic());
+
+
 
         if (intentJournalEntry.getContainsImage()) {
             binding.journalImage.setVisibility(View.VISIBLE);
@@ -194,7 +207,7 @@ public class CreateActivity extends AppCompatActivity {
         String title = binding.titleEdittext.getText().toString();
         String text = binding.mainTextEdittext.getText().toString();
         boolean isPublic = binding.publicSwitch.isChecked();
-        long unixTime = System.currentTimeMillis();
+        long createdAt = System.currentTimeMillis();
         String userId = AuthManager.getInstance().getLoggedInUserId();
 
         nlpRepository.performSentimentAnalysis(text)
@@ -204,7 +217,7 @@ public class CreateActivity extends AppCompatActivity {
                 .subscribe(sentiment -> uploadPhotoIfNeeded().subscribe( //Once we receive our sentiment, upload photo (if needed)
                         (Uri uri) -> { //on success uploading image
                             Log.i(TAG, "Successfully uploaded image");
-                            JournalEntry journalEntry = new JournalEntry(title, text, unixTime, isPublic, sentiment, userId, true, uri.toString());
+                            JournalEntry journalEntry = new JournalEntry(title, text, createdAt, entryDate.getTime().getTime(), isPublic, sentiment, userId, true, uri.toString());
                             pushToDatabase(journalEntry);
                             hideProgressBar();
                             finish();
@@ -215,7 +228,7 @@ public class CreateActivity extends AppCompatActivity {
                             hideProgressBar();
                         },
                          () -> { //no image uploaded
-                            JournalEntry journalEntry = new JournalEntry(title, text, unixTime, isPublic, sentiment, userId, false, null);
+                            JournalEntry journalEntry = new JournalEntry(title, text, createdAt, entryDate.getTime().getTime(), isPublic, sentiment, userId, false, null);
                             pushToDatabase(journalEntry);
                             hideProgressBar();
                             finish();
@@ -267,6 +280,22 @@ public class CreateActivity extends AppCompatActivity {
         builder.setNegativeButton("Cancel", (dialogInterface, i) -> dialogInterface.cancel());
         builder.setPositiveButton("Delete", onConfirm);
         builder.create().show();
+    }
+
+    private void showDatePickerDialog(){
+        int year = entryDate.get(Calendar.YEAR);
+        int month = entryDate.get(Calendar.MONTH);
+        int dayOfMonth = entryDate.get(Calendar.DAY_OF_MONTH);
+
+        DatePickerDialog dateDialog = new DatePickerDialog(CreateActivity.this, (view, year1, month1, dayOfMonth1) -> {
+            entryDate.set(year1, month1, dayOfMonth1);
+            binding.dayNumberTv.setText(DateUtils.dayOfMonth(entryDate.getTime()));
+            binding.monthAndYearTv.setText(DateUtils.monthAndYear(entryDate.getTime()));
+        }, year, month, dayOfMonth);
+
+        dateDialog.getDatePicker().setMaxDate(System.currentTimeMillis());
+
+        dateDialog.show();
     }
 
     private void hideProgressBar(){

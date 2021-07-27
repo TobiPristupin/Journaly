@@ -7,9 +7,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.core.app.ActivityOptionsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.example.journaly.MainActivity;
 import com.example.journaly.create_screen.CreateActivity;
 import com.example.journaly.databinding.FragmentJournalsListViewerBinding;
 import com.example.journaly.login.AuthManager;
@@ -25,6 +27,7 @@ import com.example.journaly.utils.AnimationUtils;
 import org.parceler.Parcels;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -106,7 +109,8 @@ public class JournalsListViewerFragment extends Fragment {
     private void updateRecyclerView(List<JournalEntry> entries) {
         List<JournalEntry> filtered = entries.stream()
                 .filter(this::filterPost)
-                .sorted()
+                .sorted(Comparator.comparingLong(JournalEntry::getDate)
+                        .reversed())
                 .collect(Collectors.toList());
 
         if (filtered.size() > 0){

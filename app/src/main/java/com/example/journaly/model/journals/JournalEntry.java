@@ -13,6 +13,7 @@ public class JournalEntry implements Comparable<JournalEntry> {
     private String text;
     private String id;
     private long createdAt;
+    private long date;
     private boolean isPublic;
     private boolean containsImage;
     private String userId;
@@ -29,7 +30,7 @@ public class JournalEntry implements Comparable<JournalEntry> {
         //Empty constructor required for firebase
     }
 
-    public JournalEntry(String title, String text, long createdAt, boolean isPublic, double sentiment, String userId, boolean containsImage, @org.jetbrains.annotations.Nullable String imageUri) {
+    public JournalEntry(String title, String text, long createdAt, long date, boolean isPublic, double sentiment, String userId, boolean containsImage, @org.jetbrains.annotations.Nullable String imageUri) {
         this.title = title;
         this.text = text;
         this.id = null; //no id since it is generated afterwards by the database
@@ -39,6 +40,7 @@ public class JournalEntry implements Comparable<JournalEntry> {
         this.containsImage = containsImage;
         this.userId = userId;
         this.imageUri = imageUri;
+        this.date = date;
     }
 
     public String getTitle() {
@@ -122,9 +124,18 @@ public class JournalEntry implements Comparable<JournalEntry> {
         this.imageUri = imageUri;
     }
 
+    public long getDate() {
+        return date;
+    }
+
+    public void setDate(long date) {
+        this.date = date;
+    }
+
+
     @Override
     public int compareTo(JournalEntry o) {
         //bigger date timestamp -> newer post -> considered smaller
-        return (int) (o.createdAt - this.createdAt);
+        return (int) (o.date - this.date);
     }
 }

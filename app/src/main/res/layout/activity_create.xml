@@ -41,12 +41,23 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="24dp"
+        android:includeFontPadding="false"
+        android:lineSpacingExtra="0sp"
         android:textColor="@color/secondary_text"
         android:textSize="34sp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/create_toolbar"
         tools:text="13" />
+
+    <View
+        android:id="@+id/view3"
+        android:layout_width="0dp"
+        android:layout_height="8dp"
+        android:background="@color/accent"
+        app:layout_constraintEnd_toEndOf="@+id/day_number_tv"
+        app:layout_constraintStart_toStartOf="@+id/day_number_tv"
+        app:layout_constraintTop_toBottomOf="@+id/day_number_tv" />
 
     <TextView
         android:id="@+id/month_and_year_tv"
@@ -59,7 +70,7 @@
         app:layout_constraintBottom_toBottomOf="@+id/day_number_tv"
         app:layout_constraintStart_toEndOf="@+id/day_number_tv"
         tools:text="Jul. 2021"
-        tools:textStyle="bold" />
+        tools:textStyle="bold"/>
 
     <EditText
         android:id="@+id/title_edittext"
@@ -75,7 +86,7 @@
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/day_number_tv"
-        app:layout_constraintTop_toBottomOf="@+id/day_number_tv" />
+        app:layout_constraintTop_toBottomOf="@+id/view3" />
 
     <EditText
         android:id="@+id/main_text_edittext"
@@ -125,7 +136,7 @@
         tools:visibility="visible"
         app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize10Percent"/>
 
-    <Switch
+    <com.google.android.material.switchmaterial.SwitchMaterial
         android:id="@+id/public_switch"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -148,5 +159,18 @@
         app:layout_constraintTop_toTopOf="@+id/public_switch"
         app:srcCompat="@drawable/icons8_happy_48"
         tools:visibility="visible" />
+
+    <ImageView
+        android:id="@+id/create_date_spinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:tint="@color/secondary_text"
+        app:layout_constraintBottom_toBottomOf="@+id/month_and_year_tv"
+        app:layout_constraintStart_toEndOf="@+id/month_and_year_tv"
+        app:layout_constraintTop_toTopOf="@+id/month_and_year_tv"
+        app:srcCompat="@drawable/ic_baseline_arrow_drop_down_24"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="?android:attr/selectableItemBackground"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

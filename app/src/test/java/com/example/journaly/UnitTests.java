@@ -82,7 +82,7 @@ public class UnitTests {
     }
 
     private JournalEntry generateJournalEntry(String userId, String entryId, double sentiment){
-        JournalEntry entry = new JournalEntry(null, null, 0, true, sentiment, userId, false, null);
+        JournalEntry entry = new JournalEntry(null, null, 0, 0, true, sentiment, userId, false, null);
         entry.setId(entryId);
         return entry;
     }
