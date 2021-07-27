@@ -22,6 +22,7 @@ import com.example.journaly.model.users.FirebaseUsersRepository;
 import com.example.journaly.model.users.User;
 import com.example.journaly.model.users.UsersRepository;
 import com.example.journaly.profile_screen.ProfileActivity;
+import com.example.journaly.utils.AnimationUtils;
 import com.example.journaly.utils.StringUtils;
 
 import org.jetbrains.annotations.NotNull;
@@ -70,6 +71,7 @@ public class SearchFragment extends Fragment {
         binding = FragmentSearchBinding.inflate(inflater, container, false);
         // Inflate the layout for this fragment
 
+        showEmptyViews();
         initRecyclerView();
         subscribeToData();
         return binding.getRoot();
@@ -108,6 +110,13 @@ public class SearchFragment extends Fragment {
                 allUsers.stream()
                         .filter(user -> StringUtils.levenshteinDistance(newText, user.getDisplayName()) < LEVENSHTEIN_DISTANCE_THRESHOLD)
                         .forEach(user -> displayedUsers.add(user));
+
+                if (displayedUsers.size() > 0){
+                    hideEmptyViews();
+                } else {
+                    showEmptyViews();
+                }
+
                 adapter.notifyDataSetChanged();
                 return true;
             }
@@ -128,6 +137,15 @@ public class SearchFragment extends Fragment {
         binding.searchRecyclerview.setAdapter(adapter);
         binding.searchRecyclerview.setLayoutManager(layoutManager);
     }
+
+    private void showEmptyViews(){
+        AnimationUtils.fadeIn(600, 300, binding.searchEmptyIcon, binding.searchEmptyText);
+    }
+
+    private void hideEmptyViews(){
+        AnimationUtils.fadeOut(600, binding.searchEmptyIcon, binding.searchEmptyText);
+    }
+
 
     @Override
     public void onDestroy() {

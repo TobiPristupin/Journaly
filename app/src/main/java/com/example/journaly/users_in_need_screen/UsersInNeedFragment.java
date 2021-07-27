@@ -23,6 +23,7 @@ import com.example.journaly.model.users.FirebaseUsersRepository;
 import com.example.journaly.model.users.User;
 import com.example.journaly.model.users.UsersRepository;
 import com.example.journaly.profile_screen.ProfileActivity;
+import com.example.journaly.utils.AnimationUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -71,6 +72,7 @@ public class UsersInNeedFragment extends Fragment {
     }
 
     private void initViews() {
+        showEmptyViews();
         adapter = new UserInNeedItemAdapter(usersInNeed, new UserInNeedItemAdapter.OnEntryClickListener() {
 
             @Override
@@ -99,6 +101,12 @@ public class UsersInNeedFragment extends Fragment {
                         return !isFromLoggedInAccount && isFromFollower;
                     })
                     .collect(Collectors.toList());
+
+            if (users.size() > 0){
+                hideEmptyViews();
+            } else {
+                showEmptyViews();
+            }
 
             usersInNeed.clear();
             usersInNeed.addAll(users);
@@ -130,6 +138,15 @@ public class UsersInNeedFragment extends Fragment {
         i.putExtra(ProfileActivity.INTENT_USER_ID_KEY, user.getUid());
         startActivity(i);
     }
+
+    private void showEmptyViews(){
+        AnimationUtils.fadeIn(600, 300, binding.searchEmptyIcon, binding.searchEmptyText);
+    }
+
+    private void hideEmptyViews(){
+        AnimationUtils.fadeOut(600, binding.searchEmptyIcon, binding.searchEmptyText);
+    }
+
 
     @Override
     public void onDestroy() {

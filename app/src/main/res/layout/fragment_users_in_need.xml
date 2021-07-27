@@ -32,5 +32,35 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/users_in_need_toolbar" />
 
+    <ImageView
+        android:id="@+id/search_empty_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:alpha="0"
+        android:src="@drawable/icons8_empty"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/users_in_need_recyclerview"
+        app:layout_constraintVertical_bias="0.4"
+        tools:alpha="1"
+        tools:visibility="visible" />
+
+    <TextView
+        android:id="@+id/search_empty_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:alpha="0"
+        android:text="No users here"
+        android:textStyle="bold"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="@+id/search_empty_icon"
+        app:layout_constraintStart_toStartOf="@+id/search_empty_icon"
+        app:layout_constraintTop_toBottomOf="@+id/search_empty_icon"
+        tools:alpha="1"
+        tools:visibility="visible" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

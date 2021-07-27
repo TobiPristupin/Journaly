@@ -16,7 +16,7 @@
     <include
         android:id="@+id/home_toolbar"
         layout="@layout/base_toolbar"
-        app:layout_scrollFlags="scroll|enterAlways|snap"/>
+        app:layout_scrollFlags="scroll|enterAlways|snap" />
 
     </com.google.android.material.appbar.AppBarLayout>
 

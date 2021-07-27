@@ -20,6 +20,7 @@ import com.example.journaly.model.users.FirebaseUsersRepository;
 import com.example.journaly.model.users.User;
 import com.example.journaly.model.users.UsersRepository;
 import com.example.journaly.profile_screen.ProfileActivity;
+import com.example.journaly.utils.AnimationUtils;
 
 import org.parceler.Parcels;
 
@@ -107,12 +108,22 @@ public class JournalsListViewerFragment extends Fragment {
                 .filter(this::filterPost)
                 .sorted()
                 .collect(Collectors.toList());
+
+        if (filtered.size() > 0){
+            hideEmptyViews();
+        } else {
+            showEmptyViews();
+        }
+
+
         displayedJournals.clear();
         displayedJournals.addAll(filtered);
         journalAdapter.notifyDataSetChanged();
     }
 
     private void initViews() {
+        showEmptyViews();
+
         journalAdapter = new JournalEntryAdapter(displayedJournals, usersRepository, new JournalEntryAdapter.OnEntryClickListener() {
             @Override
             public void onUsernameClick(int position) {
@@ -170,6 +181,14 @@ public class JournalsListViewerFragment extends Fragment {
         }
 
         throw new RuntimeException("Unreachable");
+    }
+
+    private void showEmptyViews(){
+        AnimationUtils.fadeIn(800, 500, binding.journalsViewerNoEntriesText);
+    }
+
+    private void hideEmptyViews(){
+        AnimationUtils.fadeOut(800, binding.journalsViewerNoEntriesText);
     }
 
     @Override
