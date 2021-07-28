@@ -1,14 +1,21 @@
 package com.example.journaly;
 
+import android.graphics.Bitmap;
+
+import com.example.journaly.model.avatar.AvatarApiClient;
 import com.example.journaly.model.journals.JournalEntry;
 import com.example.journaly.model.nlp.CloudNlpClient;
 import com.example.journaly.model.users.User;
 import com.example.journaly.model.users.UserInNeedUtils;
+import com.example.journaly.utils.BitmapUtils;
 
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import io.reactivex.rxjava3.functions.Consumer;
+import okhttp3.Response;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;

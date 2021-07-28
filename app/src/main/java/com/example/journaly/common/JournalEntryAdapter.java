@@ -1,5 +1,6 @@
 package com.example.journaly.common;
 
+import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -12,10 +13,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.journaly.R;
 import com.example.journaly.databinding.JournalEntryItemBinding;
+import com.example.journaly.model.avatar.AvatarApiClient;
 import com.example.journaly.model.journals.JournalEntry;
 import com.example.journaly.model.journals.Mood;
 import com.example.journaly.model.users.UsersRepository;
 import com.example.journaly.utils.DateUtils;
+import com.github.twocoffeesoneteam.glidetovectoryou.GlideToVectorYou;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -32,13 +35,13 @@ public class JournalEntryAdapter extends RecyclerView.Adapter<JournalEntryAdapte
 
     public static final String TAG = "JournalEntryAdapter";
     private List<JournalEntry> entries;
-    private Context context;
+    private Activity activity;
     private OnEntryClickListener clickListener;
     private UsersRepository usersRepository;
 
-    public JournalEntryAdapter(List<JournalEntry> entries, UsersRepository usersRepository, OnEntryClickListener clickListener, Context context) {
+    public JournalEntryAdapter(List<JournalEntry> entries, UsersRepository usersRepository, OnEntryClickListener clickListener, Activity activity) {
         this.entries = entries;
-        this.context = context;
+        this.activity = activity;
         this.clickListener = clickListener;
         this.usersRepository = usersRepository;
     }
@@ -86,7 +89,7 @@ public class JournalEntryAdapter extends RecyclerView.Adapter<JournalEntryAdapte
 
             if (entry.getContainsImage()) {
                 binding.postImage.setVisibility(View.VISIBLE);
-                Glide.with(context).load(entry.getImageUri()).into(binding.postImage);
+                Glide.with(activity).load(entry.getImageUri()).into(binding.postImage);
             } else {
                 binding.postImage.setVisibility(View.GONE);
             }
@@ -103,7 +106,11 @@ public class JournalEntryAdapter extends RecyclerView.Adapter<JournalEntryAdapte
         private void initViewsDependentOnUser(JournalEntry entry) {
             usersRepository.fetchUserFromId(entry.getUserId()).take(1).subscribe(
                     user -> {
-                        Glide.with(context).load(user.getPhotoUri()).fallback(R.drawable.default_profile).into(binding.entryPfp);
+                        if (user.getPhotoUri() != null){
+                            Glide.with(activity).load(user.getPhotoUri()).fallback(R.drawable.default_profile).into(binding.entryPfp);
+                        } else {
+                            GlideToVectorYou.justLoadImage(activity, AvatarApiClient.generateAvatarUri(user.getDisplayName()), binding.entryPfp);
+                        }
                         binding.entryUsername.setText(user.getDisplayName());
                     },
                     throwable -> {

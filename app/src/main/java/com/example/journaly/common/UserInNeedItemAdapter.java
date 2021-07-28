@@ -1,5 +1,6 @@
 package com.example.journaly.common;
 
+import android.app.Activity;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,7 +12,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.journaly.R;
 import com.example.journaly.databinding.UserInNeedItemBinding;
+import com.example.journaly.model.avatar.AvatarApiClient;
 import com.example.journaly.model.users.User;
+import com.github.twocoffeesoneteam.glidetovectoryou.GlideToVectorYou;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -26,12 +29,12 @@ public class UserInNeedItemAdapter extends RecyclerView.Adapter<UserInNeedItemAd
 
     public static final String TAG = "JournalEntryAdapter";
     private List<User> users;
-    private Context context;
+    private Activity activity;
     private OnEntryClickListener clickListener;
 
-    public UserInNeedItemAdapter(List<User> users, OnEntryClickListener clickListener, Context context) {
+    public UserInNeedItemAdapter(List<User> users, OnEntryClickListener clickListener, Activity activity) {
         this.users = users;
-        this.context = context;
+        this.activity = activity;
         this.clickListener = clickListener;
     }
 
@@ -63,7 +66,11 @@ public class UserInNeedItemAdapter extends RecyclerView.Adapter<UserInNeedItemAd
         }
 
         private void bind(User user) {
-            Glide.with(context).load(user.getPhotoUri()).fallback(R.drawable.default_profile).into(binding.userInNeedPfp);
+            if (user.getPhotoUri() != null){
+                Glide.with(activity).load(user.getPhotoUri()).fallback(R.drawable.default_profile).into(binding.userInNeedPfp);
+            } else {
+                GlideToVectorYou.justLoadImage(activity, AvatarApiClient.generateAvatarUri(user.getDisplayName()), binding.userInNeedPfp);
+            }
             binding.userInNeedProfileName.setText(user.getDisplayName());
 
             String userBio = user.getBio();

@@ -52,7 +52,7 @@
             android:layout_gravity="center"
             android:layout_marginTop="16dp"
             android:adjustViewBounds="true"
-            android:src="@drawable/default_profile"
+            tools:src="@drawable/default_profile"
             app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent" />
 
         <TextView

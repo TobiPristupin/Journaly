@@ -23,6 +23,7 @@ public class User {
     private String uid;
     @Nullable
     private String photoUri;
+
     private String email;
     @Nullable
     private String bio;

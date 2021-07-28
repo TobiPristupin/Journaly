@@ -5,7 +5,11 @@ import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
 
+import com.caverock.androidsvg.SVG;
+import com.caverock.androidsvg.SVGParseException;
+
 import java.io.IOException;
+import java.io.InputStream;
 
 public class BitmapUtils {
 
@@ -37,4 +41,5 @@ public class BitmapUtils {
         // Return result
         return Bitmap.createBitmap(bm, 0, 0, bounds.outWidth, bounds.outHeight, matrix, true);
     }
+
 }

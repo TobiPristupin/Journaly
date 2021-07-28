@@ -132,7 +132,7 @@ public class SearchFragment extends Fragment {
             Intent i = new Intent(getContext(), ProfileActivity.class);
             i.putExtra(ProfileActivity.INTENT_USER_ID_KEY, displayedUsers.get(position).getUid());
             startActivity(i);
-        }, getContext());
+        }, getActivity());
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         binding.searchRecyclerview.setAdapter(adapter);
         binding.searchRecyclerview.setLayoutManager(layoutManager);

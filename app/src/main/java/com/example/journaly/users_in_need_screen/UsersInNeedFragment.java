@@ -84,7 +84,7 @@ public class UsersInNeedFragment extends Fragment {
             public void onUsernameClick(int position) {
                 UsersInNeedFragment.this.onUserClick(usersInNeed.get(position));
             }
-        }, getContext());
+        }, getActivity());
         binding.usersInNeedRecyclerview.setAdapter(adapter);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         binding.usersInNeedRecyclerview.setLayoutManager(layoutManager);

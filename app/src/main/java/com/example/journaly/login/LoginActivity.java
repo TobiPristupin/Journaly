@@ -1,21 +1,24 @@
 package com.example.journaly.login;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.example.journaly.MainActivity;
 import com.example.journaly.databinding.ActivityLoginBinding;
+import com.example.journaly.model.avatar.AvatarApiClient;
+import com.example.journaly.model.cloud_storage.CloudStorageManager;
 import com.example.journaly.model.users.FirebaseUsersRepository;
 import com.example.journaly.model.users.UsersRepository;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.firebase.auth.AuthResult;
+import com.example.journaly.utils.BitmapUtils;
 import com.google.firebase.auth.FirebaseUser;
 
 import es.dmoral.toasty.Toasty;
+import io.reactivex.rxjava3.functions.Consumer;
+import okhttp3.Response;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -40,19 +43,16 @@ public class LoginActivity extends AppCompatActivity {
             String username = binding.loginUsernameEdittext.getText().toString();
             String password = binding.loginPasswordEdittext.getText().toString();
 
-            if (!AuthManager.fieldsAreValid(username, password)){
+            if (!AuthManager.fieldsAreValid(username, password)) {
                 Toasty.error(this, "Invalid credentials", Toast.LENGTH_SHORT, true).show();
                 return;
             }
 
             AuthManager.getInstance().signup(username, password, task -> {
-                if (task.isSuccessful()){
+                if (task.isSuccessful()) {
                     Log.d(TAG, "Successfully signed up");
                     Toasty.success(this, "Successfully signed up!", Toast.LENGTH_SHORT, true).show();
-                    UsersRepository usersRepository = FirebaseUsersRepository.getInstance();
-                    FirebaseUser user = task.getResult().getUser();
-                    String photoUrl = user.getPhotoUrl() == null ? null : user.getPhotoUrl().toString();
-                    usersRepository.createNewUser(user.getUid(), user.getEmail(), photoUrl);
+                    createUserInDatabase(username, task);
                 } else {
                     Toasty.error(this, "Could not sign up. Please try again", Toast.LENGTH_SHORT, true).show();
                     Log.w(TAG, task.getException());
@@ -61,18 +61,24 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
+    private void createUserInDatabase(String username, com.google.android.gms.tasks.Task<com.google.firebase.auth.AuthResult> task) {
+        UsersRepository usersRepository = FirebaseUsersRepository.getInstance();
+        FirebaseUser user = task.getResult().getUser();
+        usersRepository.createNewUser(user.getUid(), user.getEmail(), null);
+    }
+
     private void initLogin() {
         binding.loginButton.setOnClickListener(v -> {
             String username = binding.loginUsernameEdittext.getText().toString();
             String pwdGuess = binding.loginPasswordEdittext.getText().toString();
 
-            if (!AuthManager.fieldsAreValid(username, pwdGuess)){
+            if (!AuthManager.fieldsAreValid(username, pwdGuess)) {
                 Toasty.error(this, "Invalid credentials", Toast.LENGTH_SHORT, true).show();
                 return;
             }
 
-            AuthManager.getInstance().login(username, pwdGuess, (OnCompleteListener<AuthResult>) task -> {
-                if (task.isSuccessful()){
+            AuthManager.getInstance().login(username, pwdGuess, task -> {
+                if (task.isSuccessful()) {
                     Log.d(TAG, "Successfully logged in");
                     goToMainActivity();
                 } else {
@@ -83,7 +89,7 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    private void goToMainActivity(){
+    private void goToMainActivity() {
         Intent i = new Intent(LoginActivity.this, MainActivity.class);
         startActivity(i);
     }

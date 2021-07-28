@@ -17,11 +17,13 @@ import com.bumptech.glide.Glide;
 import com.example.journaly.R;
 import com.example.journaly.databinding.FragmentProfileBinding;
 import com.example.journaly.login.AuthManager;
+import com.example.journaly.model.avatar.AvatarApiClient;
 import com.example.journaly.model.users.FirebaseUsersRepository;
 import com.example.journaly.model.users.User;
 import com.example.journaly.model.users.UsersRepository;
 import com.example.journaly.settings_screen.SettingsActivity;
 import com.example.journaly.utils.AnimationUtils;
+import com.github.twocoffeesoneteam.glidetovectoryou.GlideToVectorYou;
 import com.google.android.material.tabs.TabLayoutMediator;
 
 import org.jetbrains.annotations.NotNull;
@@ -127,7 +129,11 @@ public class ProfileFragment extends Fragment {
     }
 
     private void initViewsDependentOnUser(){
-        Glide.with(this).load(user.getPhotoUri()).fallback(R.drawable.default_profile).into(binding.userPfp);
+        if (user.getPhotoUri() != null){
+            Glide.with(this).load(user.getPhotoUri()).fallback(R.drawable.default_profile).into(binding.userPfp);
+        } else {
+            GlideToVectorYou.justLoadImage(getActivity(), AvatarApiClient.generateAvatarUri(user.getDisplayName()), binding.userPfp);
+        }
         binding.profileUsername.setText(user.getDisplayName());
         initFollowFunctionality();
 

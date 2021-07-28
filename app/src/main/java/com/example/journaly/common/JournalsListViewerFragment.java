@@ -138,7 +138,7 @@ public class JournalsListViewerFragment extends Fragment {
             public void onEntryClick(int position) {
                 onJournalItemClick(displayedJournals.get(position));
             }
-        }, getContext());
+        }, getActivity());
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         binding.entriesRecyclerview.setAdapter(journalAdapter);
         binding.entriesRecyclerview.setLayoutManager(layoutManager);
