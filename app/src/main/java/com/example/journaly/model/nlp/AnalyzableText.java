@@ -14,7 +14,7 @@ public class AnalyzableText {
         this.language = "en";
     }
 
-    public AnalyzableText(){
+    public AnalyzableText() {
         //empty constructor for serialization
     }
 

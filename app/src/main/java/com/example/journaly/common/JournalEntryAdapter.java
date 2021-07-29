@@ -1,7 +1,6 @@
 package com.example.journaly.common;
 
 import android.app.Activity;
-import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,10 +33,10 @@ public class JournalEntryAdapter extends RecyclerView.Adapter<JournalEntryAdapte
     }
 
     public static final String TAG = "JournalEntryAdapter";
-    private List<JournalEntry> entries;
-    private Activity activity;
-    private OnEntryClickListener clickListener;
-    private UsersRepository usersRepository;
+    private final List<JournalEntry> entries;
+    private final Activity activity;
+    private final OnEntryClickListener clickListener;
+    private final UsersRepository usersRepository;
 
     public JournalEntryAdapter(List<JournalEntry> entries, UsersRepository usersRepository, OnEntryClickListener clickListener, Activity activity) {
         this.entries = entries;
@@ -66,10 +65,10 @@ public class JournalEntryAdapter extends RecyclerView.Adapter<JournalEntryAdapte
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
-        private JournalEntryItemBinding binding;
+        private final JournalEntryItemBinding binding;
         private final Map<Mood, Integer> moodToDrawable = Map.of(
                 Mood.NEGATIVE, R.drawable.icons8_sad_48,
-                Mood.NEUTRAL, R.drawable.icons8_neutral_48 ,
+                Mood.NEUTRAL, R.drawable.icons8_neutral_48,
                 Mood.POSITIVE, R.drawable.icons8_happy_48
         );
 
@@ -106,7 +105,7 @@ public class JournalEntryAdapter extends RecyclerView.Adapter<JournalEntryAdapte
         private void initViewsDependentOnUser(JournalEntry entry) {
             usersRepository.fetchUserFromId(entry.getUserId()).take(1).subscribe(
                     user -> {
-                        if (user.getPhotoUri() != null){
+                        if (user.getPhotoUri() != null) {
                             Glide.with(activity).load(user.getPhotoUri()).fallback(R.drawable.default_profile).into(binding.entryPfp);
                         } else {
                             GlideToVectorYou.justLoadImage(activity, AvatarApiClient.generateAvatarUri(user.getDisplayName()), binding.entryPfp);

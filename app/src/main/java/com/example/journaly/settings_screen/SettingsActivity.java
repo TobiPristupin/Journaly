@@ -1,10 +1,10 @@
 package com.example.journaly.settings_screen;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.os.Bundle;
 import android.view.MenuItem;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.journaly.databinding.ActivitySettingsBinding;
 
@@ -27,14 +27,14 @@ public class SettingsActivity extends AppCompatActivity {
         initToolbar();
     }
 
-    private void initToolbar(){
+    private void initToolbar() {
         setSupportActionBar(binding.settingsToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()){
+        switch (item.getItemId()) {
             case android.R.id.home:
                 finish();
                 return true;

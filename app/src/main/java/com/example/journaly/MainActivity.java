@@ -1,20 +1,20 @@
 package com.example.journaly;
 
+import android.content.Intent;
+import android.os.Bundle;
+
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 
-import android.content.Intent;
-import android.os.Bundle;
-
-import com.example.journaly.search_screen.SearchFragment;
-import com.example.journaly.users_in_need_screen.UsersInNeedFragment;
 import com.example.journaly.create_screen.CreateActivity;
 import com.example.journaly.databinding.ActivityMainBinding;
 import com.example.journaly.home_screen.HomeFragment;
-import com.example.journaly.login.LoginActivity;
 import com.example.journaly.login.AuthManager;
+import com.example.journaly.login.LoginActivity;
 import com.example.journaly.profile_screen.ProfileFragment;
+import com.example.journaly.search_screen.SearchFragment;
+import com.example.journaly.users_in_need_screen.UsersInNeedFragment;
 import com.github.nisrulz.sensey.Sensey;
 import com.github.nisrulz.sensey.ShakeDetector;
 
@@ -34,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        if (!AuthManager.getInstance().isLoggedIn()){
+        if (!AuthManager.getInstance().isLoggedIn()) {
             goToLogin();
             finish();
         }
@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showShakeDetectedDialog() {
-        if (shakeDialog != null && shakeDialog.isShowing()){
+        if (shakeDialog != null && shakeDialog.isShowing()) {
             return;
         }
 
@@ -99,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
 
         FragmentManager fm = getSupportFragmentManager();
         binding.bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
-            switch (item.getItemId()){
+            switch (item.getItemId()) {
                 case R.id.menu_home:
                     fm.beginTransaction().replace(R.id.main_fragment_container_view, homeFragment).commit();
                     break;
@@ -123,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
         binding.bottomNavigationView.setSelectedItemId(R.id.menu_home);
     }
 
-    private void goToLogin(){
+    private void goToLogin() {
         Intent intent = new Intent(MainActivity.this, LoginActivity.class);
         //Flags prevent user from returning to MainActivityView when pressing back button
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

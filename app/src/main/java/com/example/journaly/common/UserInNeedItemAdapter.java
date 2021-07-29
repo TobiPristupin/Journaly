@@ -1,7 +1,6 @@
 package com.example.journaly.common;
 
 import android.app.Activity;
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,13 +23,14 @@ public class UserInNeedItemAdapter extends RecyclerView.Adapter<UserInNeedItemAd
 
     public interface OnEntryClickListener {
         void onReachOutButtonClick(int position);
+
         void onUsernameClick(int position); //triggered when profile picture or username clicked
     }
 
     public static final String TAG = "JournalEntryAdapter";
-    private List<User> users;
-    private Activity activity;
-    private OnEntryClickListener clickListener;
+    private final List<User> users;
+    private final Activity activity;
+    private final OnEntryClickListener clickListener;
 
     public UserInNeedItemAdapter(List<User> users, OnEntryClickListener clickListener, Activity activity) {
         this.users = users;
@@ -58,7 +58,7 @@ public class UserInNeedItemAdapter extends RecyclerView.Adapter<UserInNeedItemAd
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
-        private UserInNeedItemBinding binding;
+        private final UserInNeedItemBinding binding;
 
         public ViewHolder(@NonNull @NotNull View itemView) {
             super(itemView);
@@ -66,7 +66,7 @@ public class UserInNeedItemAdapter extends RecyclerView.Adapter<UserInNeedItemAd
         }
 
         private void bind(User user) {
-            if (user.getPhotoUri() != null){
+            if (user.getPhotoUri() != null) {
                 Glide.with(activity).load(user.getPhotoUri()).fallback(R.drawable.default_profile).into(binding.userInNeedPfp);
             } else {
                 GlideToVectorYou.justLoadImage(activity, AvatarApiClient.generateAvatarUri(user.getDisplayName()), binding.userInNeedPfp);

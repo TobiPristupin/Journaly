@@ -10,7 +10,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.storage.StorageReference;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -18,18 +17,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.rxjava3.core.Completable;
-import io.reactivex.rxjava3.core.CompletableEmitter;
-import io.reactivex.rxjava3.core.CompletableOnSubscribe;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.ObservableEmitter;
 import io.reactivex.rxjava3.core.ObservableOnSubscribe;
 import io.reactivex.rxjava3.core.ObservableSource;
 import io.reactivex.rxjava3.core.Single;
-import io.reactivex.rxjava3.core.SingleSource;
-import io.reactivex.rxjava3.functions.Consumer;
-import io.reactivex.rxjava3.functions.Function;
-
-import static io.reactivex.rxjava3.core.Observable.fromIterable;
 
 //Use this class for creating a new user object in database, and fetching user data from database. If
 //you want to quickly know who is the currently logged in user, use AuthManager class. This class interfaces
@@ -38,9 +30,9 @@ public class FirebaseUsersRepository implements UsersRepository {
 
     private static final String TAG = "FirebaseUsersRepository";
     private static FirebaseUsersRepository instance = null;
-    private FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
-    private DatabaseReference userDatabaseRef = firebaseDatabase.getReference().child("users");
-    private DatabaseReference usersInNeedDatabaseRef = firebaseDatabase.getReference().child("users_in_need");
+    private final FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
+    private final DatabaseReference userDatabaseRef = firebaseDatabase.getReference().child("users");
+    private final DatabaseReference usersInNeedDatabaseRef = firebaseDatabase.getReference().child("users_in_need");
     private Observable<List<User>> allUsersObservable = null;
 
     private FirebaseUsersRepository() {
@@ -110,14 +102,14 @@ public class FirebaseUsersRepository implements UsersRepository {
         we don't want to create a new observable every time (which in turn creates a new db connection).
         Instead we want to cache the observable. We can do this since this class is a singleton.
         */
-        if (allUsersObservable == null){
+        if (allUsersObservable == null) {
             allUsersObservable = createAllUsersObservable();
         }
 
         return allUsersObservable;
     }
 
-    private Observable<List<User>> createAllUsersObservable(){
+    private Observable<List<User>> createAllUsersObservable() {
         return Observable.create((ObservableOnSubscribe<List<User>>) emitter -> {
             //create a firebase db listener that relays data to the emitter
             ValueEventListener dbListener = createDatabaseConnectionForListOfUsers(emitter);
@@ -137,7 +129,7 @@ public class FirebaseUsersRepository implements UsersRepository {
         return createUsersInNeedObservable();
     }
 
-    private Observable<List<User>> createUsersInNeedObservable(){
+    private Observable<List<User>> createUsersInNeedObservable() {
         return Observable.create(emitter -> {
             usersInNeedDatabaseRef.addValueEventListener(new ValueEventListener() {
                 @Override
@@ -157,12 +149,12 @@ public class FirebaseUsersRepository implements UsersRepository {
         });
     }
 
-    private ValueEventListener createDatabaseConnectionForListOfUsers(ObservableEmitter<List<User>> emitter){
+    private ValueEventListener createDatabaseConnectionForListOfUsers(ObservableEmitter<List<User>> emitter) {
         return new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
                 List<User> users = new ArrayList<>();
-                for (DataSnapshot data : snapshot.getChildren()){
+                for (DataSnapshot data : snapshot.getChildren()) {
                     users.add(data.getValue(User.class));
                 }
                 emitter.onNext(users);
@@ -190,7 +182,7 @@ public class FirebaseUsersRepository implements UsersRepository {
     }
 
     @Override
-    public Completable updateUserBioAndContactInfo(String bio, String contactInfo){
+    public Completable updateUserBioAndContactInfo(String bio, String contactInfo) {
         return Completable.mergeArray(updateUserBio(bio), updateUserContactInfo(contactInfo));
     }
 
@@ -262,19 +254,19 @@ public class FirebaseUsersRepository implements UsersRepository {
         return Completable.mergeArray(removeFromDb, updateInNeed(userId, false));
     }
 
-    private Completable addToFollowersList(String userMakingFollow, String userBeingFollowed){
+    private Completable addToFollowersList(String userMakingFollow, String userBeingFollowed) {
         return Completable.create(emitter -> userDatabaseRef.child(userBeingFollowed).child("followers").push().setValue(userMakingFollow)
                 .addOnCompleteListener(task -> emitter.onComplete())
                 .addOnFailureListener(e -> emitter.onError(e)));
     }
 
-    private Completable addToFollowingList(String userMakingFollow, String userBeingFollowed){
+    private Completable addToFollowingList(String userMakingFollow, String userBeingFollowed) {
         return Completable.create(emitter -> userDatabaseRef.child(userMakingFollow).child("following").push().setValue(userBeingFollowed)
                 .addOnCompleteListener(task -> emitter.onComplete())
                 .addOnFailureListener(e -> emitter.onError(e)));
     }
 
-    private Completable removeFromFollowersList(String userMakingUnfollow, String userBeingUnfollowed){
+    private Completable removeFromFollowersList(String userMakingUnfollow, String userBeingUnfollowed) {
         return Completable.create(emitter -> {
             userDatabaseRef.child(userBeingUnfollowed).child("followers").orderByValue().equalTo(userMakingUnfollow)
                     .addListenerForSingleValueEvent(new ValueEventListener() {
@@ -295,7 +287,7 @@ public class FirebaseUsersRepository implements UsersRepository {
         });
     }
 
-    private Completable removeFromFollowingList(String userMakingUnfollow, String userBeingUnfollowed){
+    private Completable removeFromFollowingList(String userMakingUnfollow, String userBeingUnfollowed) {
         return Completable.create(emitter -> {
             userDatabaseRef.child(userMakingUnfollow).child("following").orderByValue().equalTo(userBeingUnfollowed)
                     .addListenerForSingleValueEvent(new ValueEventListener() {

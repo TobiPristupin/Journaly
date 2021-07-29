@@ -4,30 +4,26 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
-import android.provider.MediaStore;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-
 import com.example.journaly.R;
-import com.example.journaly.login.LoginActivity;
 import com.example.journaly.login.AuthManager;
+import com.example.journaly.login.LoginActivity;
 import com.example.journaly.model.cloud_storage.CloudStorageManager;
 import com.example.journaly.model.users.FirebaseUsersRepository;
 import com.example.journaly.model.users.UsersRepository;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
 import java.io.IOException;
-
-import io.reactivex.rxjava3.functions.Consumer;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -37,11 +33,11 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     private static final int SELECT_IMAGE_REQUEST_CODE = 123;
     private UsersRepository usersRepository;
 
-    public SettingsFragment(){
+    public SettingsFragment() {
 
     }
 
-    public static SettingsFragment newInstance(){
+    public static SettingsFragment newInstance() {
         return new SettingsFragment();
     }
 

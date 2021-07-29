@@ -1,15 +1,14 @@
 package com.example.journaly.profile_screen;
 
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.fragment.app.Fragment;
 
 import com.example.journaly.databinding.FragmentProfileAboutBinding;
 import com.example.journaly.login.AuthManager;
@@ -60,11 +59,11 @@ public class ProfileAboutFragment extends Fragment {
         return binding.getRoot();
     }
 
-    private void initViews(){
+    private void initViews() {
         binding.aboutEdittext.setText(user.getBio());
         binding.contactInfoEdittext.setText(user.getContactInfo());
 
-        if (editMode){
+        if (editMode) {
             binding.saveButton.setVisibility(View.VISIBLE);
             initEditTextListeners();
             initSaveButton();
@@ -72,13 +71,13 @@ public class ProfileAboutFragment extends Fragment {
             binding.saveButton.setVisibility(View.GONE);
             binding.aboutEdittext.setFocusable(false);
             binding.aboutEdittext.setBackgroundResource(android.R.color.transparent);
-            if (user.getBio() == null || user.getBio().equals("")){
+            if (user.getBio() == null || user.getBio().equals("")) {
                 binding.aboutEdittext.setHint("This user has no bio :(");
             }
 
             binding.contactInfoEdittext.setFocusable(false);
             binding.contactInfoEdittext.setBackgroundResource(android.R.color.transparent);
-            if (user.getContactInfo() == null || user.getContactInfo().equals("")){
+            if (user.getContactInfo() == null || user.getContactInfo().equals("")) {
                 binding.contactInfoEdittext.setHint("This user has no contact info :(");
             }
         }

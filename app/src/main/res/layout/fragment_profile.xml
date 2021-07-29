@@ -27,7 +27,7 @@
     <View
         android:id="@+id/view2"
         android:layout_width="0dp"
-        android:layout_height="200dp"
+        android:layout_height="140dp"
         android:background="@color/primary"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -48,12 +48,12 @@
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/user_pfp"
             android:layout_width="wrap_content"
-            android:layout_height="100dp"
+            android:layout_height="80dp"
             android:layout_gravity="center"
             android:layout_marginTop="16dp"
             android:adjustViewBounds="true"
-            tools:src="@drawable/default_profile"
-            app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent" />
+            app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
+            tools:src="@drawable/default_profile" />
 
         <TextView
             android:id="@+id/profile_username"
@@ -62,7 +62,7 @@
             android:layout_gravity="center"
             android:layout_marginTop="8dp"
             android:textColor="@android:color/white"
-            android:textSize="18sp"
+            android:textSize="16sp"
             android:textStyle="bold"
             tools:text="pristu" />
 
@@ -138,6 +138,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/view2"
         app:tabIndicatorColor="@android:color/white"
+        app:tabIndicatorHeight="5dp"
         app:tabTextColor="@android:color/white">
 
         <com.google.android.material.tabs.TabItem
@@ -149,6 +150,11 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:text="Entries" />
+
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="Goals" />
 
 
     </com.google.android.material.tabs.TabLayout>

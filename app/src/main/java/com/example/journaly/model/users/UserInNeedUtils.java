@@ -1,11 +1,8 @@
 package com.example.journaly.model.users;
 
-import android.util.Range;
-
 import com.example.journaly.model.journals.JournalEntry;
 
 import java.util.List;
-import java.util.function.DoubleUnaryOperator;
 import java.util.stream.Collectors;
 
 /* Class that determines if a user X is in need. An analysis is triggered everytime a users posts something.
@@ -73,8 +70,12 @@ public class UserInNeedUtils {
     */
     public static final double THRESHOLD_UPDATE_FACTOR_NEGATIVE = 0.8;
 
+    //If a user exceeds this value, then that user's negativity threshold will be made less sensitive, to reflect
+    //and improvement in the user's mood.
+    public static double POSITIVE_THRESHOLD = 5;
+
     /*
-    If a user exceeds their positivity threshold, their new negativity threshold should be updated using the
+    If a user exceeds their POSITIVE_THRESHOLD, their new negativity threshold should be updated using the
     formula: old threshold * THRESHOLD_UPDATE_FACTOR_POSITIVE
     */
     public static double THRESHOLD_UPDATE_FACTOR_POSITIVE = 1.2;
@@ -86,7 +87,7 @@ public class UserInNeedUtils {
     public static double LOWEST_NEGATIVITY_THRESHOLD = User.DEFAULT_NEGATIVITY_THRESHOLD;
 
 
-    public static Response isUserInNeed(List<JournalEntry> entries, User user){
+    public static Response isUserInNeed(List<JournalEntry> entries, User user) {
         List<JournalEntry> entriesToAnalyze = entries.stream()
                 .filter(journalEntry -> journalEntry.getUserId().equals(user.getUid()))
                 .filter(journalEntry -> journalEntry.getId().compareTo(user.getIdOfLastJournalEntryAnalyzed()) > 0)
@@ -97,24 +98,32 @@ public class UserInNeedUtils {
         double accumulatedSentiment = entriesToAnalyze.stream()
                 .skip(entriesToAnalyze.size() - entriesToTakeFromEnd) //take last 4
                 .mapToDouble(value -> value.getSentiment())
-                .peek(operand -> System.out.print("analyzed " + operand))
+                .peek(operand -> System.out.print("analyzed " + operand)) //TODO: For debugging, remove this when releasing
                 .peek(operand -> System.out.println())
                 .reduce(0.0, Double::sum);
 
-        if (accumulatedSentiment <= user.getNegativityThreshold()){
-            double updatedThreshold = Math.min(user.getNegativityThreshold() * THRESHOLD_UPDATE_FACTOR_NEGATIVE, HIGHEST_NEGATIVITY_THRESHOLD);
+        if (accumulatedSentiment <= user.getNegativityThreshold()) {
+            double updatedThreshold = user.getNegativityThreshold() * THRESHOLD_UPDATE_FACTOR_NEGATIVE;
+            updatedThreshold = keepInRange(LOWEST_NEGATIVITY_THRESHOLD, HIGHEST_NEGATIVITY_THRESHOLD, updatedThreshold);
+
             String idOfLastAnalyzed = entriesToAnalyze.get(entriesToAnalyze.size() - 1).getId();
             return new Response(true, updatedThreshold, idOfLastAnalyzed);
         }
 
-        if (accumulatedSentiment >= user.getPositivityThreshold()){
-            double updatedThreshold = Math.max(user.getNegativityThreshold() * THRESHOLD_UPDATE_FACTOR_POSITIVE, LOWEST_NEGATIVITY_THRESHOLD);
+        if (accumulatedSentiment >= POSITIVE_THRESHOLD) {
+            double updatedThreshold = user.getNegativityThreshold() * THRESHOLD_UPDATE_FACTOR_POSITIVE;
+            updatedThreshold = keepInRange(LOWEST_NEGATIVITY_THRESHOLD, HIGHEST_NEGATIVITY_THRESHOLD, updatedThreshold);
+
             String idOfLastAnalyzed = entriesToAnalyze.get(entriesToAnalyze.size() - 1).getId();
             return new Response(false, updatedThreshold, idOfLastAnalyzed);
         }
 
 
         return new Response(user.isInNeed(), user.getNegativityThreshold(), user.getIdOfLastJournalEntryAnalyzed());
+    }
+
+    private static double keepInRange(double min, double max, double value) {
+        return Math.min(Math.max(value, min), max);
     }
 
 }

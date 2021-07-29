@@ -10,28 +10,28 @@ import com.google.firebase.auth.FirebaseAuth;
 public class AuthManager {
 
     private static AuthManager instance = null;
-    private FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+    private final FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
 
-    private AuthManager(){
+    private AuthManager() {
         //private empty constructor for singleton pattern
     }
 
-    public static AuthManager getInstance(){
-        if (instance == null){
+    public static AuthManager getInstance() {
+        if (instance == null) {
             instance = new AuthManager();
         }
 
         return instance;
     }
 
-    public boolean isLoggedIn(){
+    public boolean isLoggedIn() {
         return firebaseAuth.getCurrentUser() != null;
     }
 
     //fetching the current user id can be done quickly and synchronosuly, so we provide a helper function here
     //since this is an operation done very often. To fetch other information from the user, one must use
     //getCurrentUser which makes a call to the database.
-    public String getLoggedInUserId(){
+    public String getLoggedInUserId() {
         return firebaseAuth.getCurrentUser().getUid();
     }
 
@@ -41,7 +41,7 @@ public class AuthManager {
     fieldsAreValid(). Ideally field checking would be merged into the callback response, but I would have to write
     my own callback wrapper and I don't feel like.
     */
-    public void signup(String username, String password, OnCompleteListener<AuthResult> onCompleteListener, Activity activity){
+    public void signup(String username, String password, OnCompleteListener<AuthResult> onCompleteListener, Activity activity) {
         String email = constructEmailFromUsername(username);
         firebaseAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(activity, onCompleteListener);
     }
@@ -52,16 +52,16 @@ public class AuthManager {
     fieldsAreValid(). Ideally field checking would be merged into the callback response, but I would have to write
     my own callback wrapper and I don't feel like.
     */
-    public void login(String username, String pwdGuess, OnCompleteListener<AuthResult> onCompleteListener, Activity activity){
+    public void login(String username, String pwdGuess, OnCompleteListener<AuthResult> onCompleteListener, Activity activity) {
         String email = constructEmailFromUsername(username);
         firebaseAuth.signInWithEmailAndPassword(email, pwdGuess).addOnCompleteListener(activity, onCompleteListener);
     }
 
-    public void logout(){
+    public void logout() {
         firebaseAuth.signOut();
     }
 
-    private String constructEmailFromUsername(String username){
+    private String constructEmailFromUsername(String username) {
         /*
         firebase does not allow login with username and no email, so we're constructing a fake email
         here
@@ -69,26 +69,21 @@ public class AuthManager {
         return username + "@journaly.com";
     }
 
-    public static boolean fieldsAreValid(String username, String password){
-        if (username == null || password == null || username.length() == 0 || password.length() == 0){
+    public static boolean fieldsAreValid(String username, String password) {
+        if (username == null || password == null || username.length() == 0 || password.length() == 0) {
             return false;
         }
 
-        if (!isAlphanumeric(username) || !isAlphanumeric(password)){
+        if (!isAlphanumeric(username) || !isAlphanumeric(password)) {
             return false;
         }
 
-        if (password.length() < 6){
-            return false;
-        }
-
-        return true;
+        return password.length() >= 6;
     }
 
     private static boolean isAlphanumeric(String str) {
         char[] charArray = str.toCharArray();
-        for(char c:charArray)
-        {
+        for (char c : charArray) {
             if (!Character.isLetterOrDigit(c))
                 return false;
         }

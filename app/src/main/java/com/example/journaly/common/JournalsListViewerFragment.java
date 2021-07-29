@@ -7,11 +7,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.core.app.ActivityOptionsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
-import com.example.journaly.MainActivity;
 import com.example.journaly.create_screen.CreateActivity;
 import com.example.journaly.databinding.FragmentJournalsListViewerBinding;
 import com.example.journaly.login.AuthManager;
@@ -45,10 +43,10 @@ public class JournalsListViewerFragment extends Fragment {
     private String userId;
     private User user;
     private JournalEntryAdapter journalAdapter;
-    private List<JournalEntry> displayedJournals = new ArrayList<>(); //holds all currently displayed journals according to filtering
-    private JournalRepository journalRepository = FirebaseJournalRepository.getInstance();
-    private UsersRepository usersRepository = FirebaseUsersRepository.getInstance();
-    private List<Disposable> dataSubscriptions = new ArrayList<>();
+    private final List<JournalEntry> displayedJournals = new ArrayList<>(); //holds all currently displayed journals according to filtering
+    private final JournalRepository journalRepository = FirebaseJournalRepository.getInstance();
+    private final UsersRepository usersRepository = FirebaseUsersRepository.getInstance();
+    private final List<Disposable> dataSubscriptions = new ArrayList<>();
 
     public JournalsListViewerFragment() {
         // Required empty public constructor
@@ -113,7 +111,7 @@ public class JournalsListViewerFragment extends Fragment {
                         .reversed())
                 .collect(Collectors.toList());
 
-        if (filtered.size() > 0){
+        if (filtered.size() > 0) {
             hideEmptyViews();
         } else {
             showEmptyViews();
@@ -176,7 +174,7 @@ public class JournalsListViewerFragment extends Fragment {
                 return journalEntry.getUserId().equals(userId) && journalEntry.isPublic();
             }
         } else if (mode == Mode.HOME_FEED) {
-            if (journalEntry.getUserId().equals(loggedInId)){
+            if (journalEntry.getUserId().equals(loggedInId)) {
                 return true; //show personal posts
             } else {
                 //show posts from other users if post is public and logged in user follows creator
@@ -187,11 +185,11 @@ public class JournalsListViewerFragment extends Fragment {
         throw new RuntimeException("Unreachable");
     }
 
-    private void showEmptyViews(){
+    private void showEmptyViews() {
         AnimationUtils.fadeIn(800, 500, binding.journalsViewerNoEntriesText);
     }
 
-    private void hideEmptyViews(){
+    private void hideEmptyViews() {
         AnimationUtils.fadeOut(800, binding.journalsViewerNoEntriesText);
     }
 

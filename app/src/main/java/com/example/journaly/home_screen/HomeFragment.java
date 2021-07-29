@@ -28,7 +28,7 @@ public class HomeFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (savedInstanceState == null){
+        if (savedInstanceState == null) {
             JournalsListViewerFragment.Mode homeFeedMode = JournalsListViewerFragment.Mode.HOME_FEED;
             String loggedInId = AuthManager.getInstance().getLoggedInUserId();
             Fragment journalsListViewerFragment = JournalsListViewerFragment.newInstance(homeFeedMode, loggedInId);

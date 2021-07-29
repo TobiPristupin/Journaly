@@ -2,16 +2,15 @@ package com.example.journaly.profile_screen;
 
 import android.content.Intent;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
 import com.example.journaly.R;
@@ -49,7 +48,7 @@ public class ProfileFragment extends Fragment {
     private User user;
     private UsersRepository usersRepository;
     private CompositeDisposable disposables;
-    private boolean viewsInitialized = false;
+    private final boolean viewsInitialized = false;
 
     public ProfileFragment() {
         // Required empty public constructor
@@ -105,7 +104,7 @@ public class ProfileFragment extends Fragment {
     }
 
     private void initOptionsMenu() {
-        if (enableBackButton){
+        if (enableBackButton) {
             binding.profileToolbar.setNavigationIcon(R.drawable.ic_baseline_arrow_back_24);
             binding.profileToolbar.setNavigationOnClickListener(v -> {
                 getActivity().finish();
@@ -113,10 +112,10 @@ public class ProfileFragment extends Fragment {
         }
 
         //can only access settings if logged in as current user
-        if (AuthManager.getInstance().getLoggedInUserId().equals(userId)){
+        if (AuthManager.getInstance().getLoggedInUserId().equals(userId)) {
             binding.profileToolbar.inflateMenu(R.menu.profile_toolbar_menu);
             binding.profileToolbar.setOnMenuItemClickListener(item -> {
-                switch (item.getItemId()){
+                switch (item.getItemId()) {
                     case R.id.action_settings:
                         Intent i = new Intent(getContext(), SettingsActivity.class);
                         startActivity(i);
@@ -128,8 +127,8 @@ public class ProfileFragment extends Fragment {
         }
     }
 
-    private void initViewsDependentOnUser(){
-        if (user.getPhotoUri() != null){
+    private void initViewsDependentOnUser() {
+        if (user.getPhotoUri() != null) {
             Glide.with(this).load(user.getPhotoUri()).fallback(R.drawable.default_profile).into(binding.userPfp);
         } else {
             GlideToVectorYou.justLoadImage(getActivity(), AvatarApiClient.generateAvatarUri(user.getDisplayName()), binding.userPfp);
@@ -137,7 +136,7 @@ public class ProfileFragment extends Fragment {
         binding.profileUsername.setText(user.getDisplayName());
         initFollowFunctionality();
 
-       initTabs();
+        initTabs();
     }
 
     private void initTabs() {
@@ -145,18 +144,21 @@ public class ProfileFragment extends Fragment {
 
         binding.profileViewpager.setAdapter(new ProfileSectionAdapter(this, user));
         new TabLayoutMediator(binding.profileTabs, binding.profileViewpager, (tab, position) -> {
-            switch (position){
+            switch (position) {
                 case 0:
                     tab.setText("Profile");
                     break;
                 case 1:
                     tab.setText("Journals");
                     break;
+                case 2:
+                    tab.setText("Goals");
+                    break;
             }
         }).attach();
     }
 
-    private void initFollowFunctionality(){
+    private void initFollowFunctionality() {
         List<String> followers = user.getFollowersAsList();
         List<String> following = user.getFollowingAsList();
         int followerCount = followers == null ? 0 : followers.size();
@@ -165,10 +167,10 @@ public class ProfileFragment extends Fragment {
         binding.followingCount.setText(String.valueOf(followIngCount));
 
         String loggedInId = AuthManager.getInstance().getLoggedInUserId();
-        if (!user.getUid().equals(loggedInId)){
+        if (!user.getUid().equals(loggedInId)) {
             AnimationUtils.fadeIn(500, 200, binding.followButton);
             //logged in user is viewing another user
-            if (followers != null && followers.contains(loggedInId)){ //already following
+            if (followers != null && followers.contains(loggedInId)) { //already following
                 binding.followButton.setBackgroundColor(getResources().getColor(R.color.unfollow_red));
                 binding.followButton.setText("Unfollow");
             } else {
@@ -178,7 +180,7 @@ public class ProfileFragment extends Fragment {
         }
 
         binding.followButton.setOnClickListener(v -> {
-            if (binding.followButton.getText().equals("Follow")){
+            if (binding.followButton.getText().equals("Follow")) {
                 usersRepository.follow(user.getUid()).subscribe(() -> {
                     Log.i(TAG, "Successfully followed");
                     initFollowFunctionality(); //refresh all data

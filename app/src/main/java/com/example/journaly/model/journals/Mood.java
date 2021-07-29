@@ -6,23 +6,23 @@ public enum Mood {
     NEUTRAL(0),
     NEGATIVE(-1);
 
-    private int value;
+    private final int value;
 
-    private Mood(int value){
+    Mood(int value) {
         this.value = value;
     }
 
-    public static Mood fromSentiment(double sentiment){
-        if (sentiment >= -0.25 && sentiment <= 0.25){
+    public static Mood fromSentiment(double sentiment) {
+        if (sentiment >= -0.25 && sentiment <= 0.25) {
             return Mood.NEUTRAL;
-        } else if (sentiment >= 0.25){
+        } else if (sentiment >= 0.25) {
             return Mood.POSITIVE;
         }
 
         return Mood.NEGATIVE;
     }
 
-    public int toInt(){
+    public int toInt() {
         return this.value;
     }
 

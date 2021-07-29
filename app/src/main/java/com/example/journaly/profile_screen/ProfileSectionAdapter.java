@@ -9,9 +9,9 @@ import com.example.journaly.model.users.User;
 
 import org.jetbrains.annotations.NotNull;
 
-public class ProfileSectionAdapter extends FragmentStateAdapter  {
+public class ProfileSectionAdapter extends FragmentStateAdapter {
 
-    private User user;
+    private final User user;
 
     public ProfileSectionAdapter(@NonNull @NotNull Fragment fragment, User user) {
         super(fragment);
@@ -19,24 +19,25 @@ public class ProfileSectionAdapter extends FragmentStateAdapter  {
     }
 
 
-
     @NonNull
     @NotNull
     @Override
     public Fragment createFragment(int position) {
-        switch (position){
+        switch (position) {
             case 0:
                 return ProfileAboutFragment.newInstance(user);
             case 1:
                 JournalsListViewerFragment.Mode profileMode = JournalsListViewerFragment.Mode.USER_PROFILE;
                 return JournalsListViewerFragment.newInstance(profileMode, user.getUid());
-        };
+            case 2:
+                return ProfileAboutFragment.newInstance(user);
+        }
 
         throw new RuntimeException("Unreachable");
     }
 
     @Override
     public int getItemCount() {
-        return 2;
+        return 3;
     }
 }

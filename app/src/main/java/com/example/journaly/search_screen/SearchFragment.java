@@ -2,18 +2,17 @@ package com.example.journaly.search_screen;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
-
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
 
 import com.example.journaly.R;
 import com.example.journaly.common.ProfileItemAdapter;
@@ -45,7 +44,8 @@ public class SearchFragment extends Fragment {
     private FragmentSearchBinding binding;
     private ProfileItemAdapter adapter;
     private List<User> allUsers = new ArrayList<>();
-    private List<User> displayedUsers = new ArrayList<>();; //users displayed after filtering is applied
+    private final List<User> displayedUsers = new ArrayList<>();
+    //users displayed after filtering is applied
     private UsersRepository usersRepository;
     private CompositeDisposable disposable;
 
@@ -84,7 +84,7 @@ public class SearchFragment extends Fragment {
         initSearchFunctionality();
     }
 
-    private void subscribeToData(){
+    private void subscribeToData() {
         usersRepository.fetchAllUsers().subscribe(users -> {
             SearchFragment.this.allUsers = users;
         }, throwable -> {
@@ -111,7 +111,7 @@ public class SearchFragment extends Fragment {
                         .filter(user -> StringUtils.levenshteinDistance(newText, user.getDisplayName()) < LEVENSHTEIN_DISTANCE_THRESHOLD)
                         .forEach(user -> displayedUsers.add(user));
 
-                if (displayedUsers.size() > 0){
+                if (displayedUsers.size() > 0) {
                     hideEmptyViews();
                 } else {
                     showEmptyViews();
@@ -127,7 +127,7 @@ public class SearchFragment extends Fragment {
         binding.searchToolbar.inflateMenu(R.menu.search_toolbar_menu);
     }
 
-    private void initRecyclerView(){
+    private void initRecyclerView() {
         adapter = new ProfileItemAdapter(displayedUsers, position -> {
             Intent i = new Intent(getContext(), ProfileActivity.class);
             i.putExtra(ProfileActivity.INTENT_USER_ID_KEY, displayedUsers.get(position).getUid());
@@ -138,11 +138,11 @@ public class SearchFragment extends Fragment {
         binding.searchRecyclerview.setLayoutManager(layoutManager);
     }
 
-    private void showEmptyViews(){
+    private void showEmptyViews() {
         AnimationUtils.fadeIn(600, 300, binding.searchEmptyIcon, binding.searchEmptyText);
     }
 
-    private void hideEmptyViews(){
+    private void hideEmptyViews() {
         AnimationUtils.fadeOut(600, binding.searchEmptyIcon, binding.searchEmptyText);
     }
 

@@ -37,10 +37,6 @@ public class User {
     //Threshold used to determine if a user is "in need".
     private double negativityThreshold;
 
-    @Exclude
-    //Threshold used to determine if a user can have their negativity threshold increased
-    private final double positivityThreshold = 5;
-
     //Default negativity threshold that all users start with.
     @Exclude
     public static final double DEFAULT_NEGATIVITY_THRESHOLD = -3.5;
@@ -81,7 +77,7 @@ public class User {
         this.isInNeed = isInNeed;
     }
 
-    public static User withDefaultValues(String uid, @Nullable String photoUri, String email){
+    public static User withDefaultValues(String uid, @Nullable String photoUri, String email) {
         return new User(uid, photoUri, email, null, null, null, null, User.DEFAULT_NEGATIVITY_THRESHOLD, "", false);
     }
 
@@ -93,7 +89,8 @@ public class User {
         this.uid = uid;
     }
 
-    public @Nullable String getPhotoUri() {
+    public @Nullable
+    String getPhotoUri() {
         return photoUri;
     }
 
@@ -114,7 +111,8 @@ public class User {
         return this.email.split("@")[0];
     }
 
-    public @Nullable String getBio() {
+    public @Nullable
+    String getBio() {
         return bio;
     }
 
@@ -122,7 +120,8 @@ public class User {
         this.bio = bio;
     }
 
-    public @Nullable String getContactInfo() {
+    public @Nullable
+    String getContactInfo() {
         return contactInfo;
     }
 
@@ -130,11 +129,13 @@ public class User {
         this.contactInfo = contactInfo;
     }
 
-    public @Nullable Map<String, String> getFollowers() {
+    public @Nullable
+    Map<String, String> getFollowers() {
         return followers;
     }
 
-    public @Nullable List<String> getFollowersAsList() {
+    public @Nullable
+    List<String> getFollowersAsList() {
         if (followers == null) {
             return new ArrayList<>();
         }
@@ -150,7 +151,8 @@ public class User {
         return following;
     }
 
-    public @Nullable List<String> getFollowingAsList() {
+    public @Nullable
+    List<String> getFollowingAsList() {
         if (following == null) {
             return new ArrayList<>();
         }
@@ -183,10 +185,5 @@ public class User {
 
     public void setInNeed(boolean inNeed) {
         isInNeed = inNeed;
-    }
-
-    @Exclude
-    public double getPositivityThreshold() {
-        return positivityThreshold;
     }
 }

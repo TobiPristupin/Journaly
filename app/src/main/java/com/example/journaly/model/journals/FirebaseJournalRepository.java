@@ -2,8 +2,6 @@ package com.example.journaly.model.journals;
 
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-
 import com.example.journaly.login.AuthManager;
 import com.example.journaly.model.users.FirebaseUsersRepository;
 import com.example.journaly.model.users.UserInNeedUtils;
@@ -13,8 +11,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,11 +25,11 @@ public class FirebaseJournalRepository implements JournalRepository {
 
     private static final String TAG = "FirebaseJournalRepo";
     private static FirebaseJournalRepository instance = null;
-    private FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
-    private DatabaseReference journalDatabaseRef = firebaseDatabase.getReference().child("journal_entries");
+    private final FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
+    private final DatabaseReference journalDatabaseRef = firebaseDatabase.getReference().child("journal_entries");
     private static Observable<List<JournalEntry>> entriesObservable;
 
-    private UsersRepository usersRepository = FirebaseUsersRepository.getInstance();
+    private final UsersRepository usersRepository = FirebaseUsersRepository.getInstance();
 
     private FirebaseJournalRepository() {
 
@@ -136,21 +132,21 @@ public class FirebaseJournalRepository implements JournalRepository {
     private void performUsersInNeedDetection(List<JournalEntry> entries) {
         String loggedInId = AuthManager.getInstance().getLoggedInUserId();
         usersRepository.fetchUserFromId(loggedInId).take(1).subscribe(user -> {
-            UserInNeedUtils.Response  response = UserInNeedUtils.isUserInNeed(entries, user);
+            UserInNeedUtils.Response response = UserInNeedUtils.isUserInNeed(entries, user);
 
-            if (!user.isInNeed() && response.isInNeed()){
+            if (!user.isInNeed() && response.isInNeed()) {
                 usersRepository.addUserInNeed(loggedInId).subscribe();
 
-                if (user.getNegativityThreshold() != response.getUpdatedNegativityThreshold()){
+                if (user.getNegativityThreshold() != response.getUpdatedNegativityThreshold()) {
                     usersRepository.updateThreshold(response.getUpdatedNegativityThreshold()).subscribe();
                     usersRepository.updateLastAnalyzed(response.getLastEntryIdAnalyzed()).subscribe();
                 }
 
-            } else if (user.isInNeed() && !response.isInNeed()){
+            } else if (user.isInNeed() && !response.isInNeed()) {
                 usersRepository.removeUserInNeed(loggedInId).subscribe();
 
                 //if a user is already in need, only update their threshold if it involves a positive change
-                if (user.getNegativityThreshold() < response.getUpdatedNegativityThreshold()){
+                if (user.getNegativityThreshold() < response.getUpdatedNegativityThreshold()) {
                     usersRepository.updateThreshold(response.getUpdatedNegativityThreshold()).subscribe();
                     usersRepository.updateLastAnalyzed(response.getLastEntryIdAnalyzed()).subscribe();
                 }

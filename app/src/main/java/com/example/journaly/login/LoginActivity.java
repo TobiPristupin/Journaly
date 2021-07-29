@@ -9,16 +9,11 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.journaly.MainActivity;
 import com.example.journaly.databinding.ActivityLoginBinding;
-import com.example.journaly.model.avatar.AvatarApiClient;
-import com.example.journaly.model.cloud_storage.CloudStorageManager;
 import com.example.journaly.model.users.FirebaseUsersRepository;
 import com.example.journaly.model.users.UsersRepository;
-import com.example.journaly.utils.BitmapUtils;
 import com.google.firebase.auth.FirebaseUser;
 
 import es.dmoral.toasty.Toasty;
-import io.reactivex.rxjava3.functions.Consumer;
-import okhttp3.Response;
 
 public class LoginActivity extends AppCompatActivity {
 

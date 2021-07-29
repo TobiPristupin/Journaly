@@ -1,8 +1,6 @@
 package com.example.journaly.common;
 
 import android.app.Activity;
-import android.content.Context;
-import android.graphics.drawable.PictureDrawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,10 +9,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.RequestBuilder;
 import com.example.journaly.R;
 import com.example.journaly.databinding.ProfileListItemBinding;
-import com.example.journaly.glide.SvgSoftwareLayerSetter;
 import com.example.journaly.model.avatar.AvatarApiClient;
 import com.example.journaly.model.users.User;
 import com.github.twocoffeesoneteam.glidetovectoryou.GlideToVectorYou;
@@ -23,8 +19,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-import static com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions.withCrossFade;
-
 public class ProfileItemAdapter extends RecyclerView.Adapter<ProfileItemAdapter.ViewHolder> {
 
     public interface OnEntryClickListener {
@@ -32,9 +26,9 @@ public class ProfileItemAdapter extends RecyclerView.Adapter<ProfileItemAdapter.
     }
 
     public static final String TAG = "ProfileItemAdapter";
-    private List<User> users;
-    private Activity context;
-    private OnEntryClickListener clickListener;
+    private final List<User> users;
+    private final Activity context;
+    private final OnEntryClickListener clickListener;
 
     public ProfileItemAdapter(List<User> users, OnEntryClickListener clickListener, Activity context) {
         this.users = users;
@@ -62,7 +56,7 @@ public class ProfileItemAdapter extends RecyclerView.Adapter<ProfileItemAdapter.
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
-        private ProfileListItemBinding binding;
+        private final ProfileListItemBinding binding;
 
         public ViewHolder(@NonNull @NotNull View itemView) {
             super(itemView);
@@ -70,7 +64,7 @@ public class ProfileItemAdapter extends RecyclerView.Adapter<ProfileItemAdapter.
         }
 
         private void bind(User user) {
-            if (user.getPhotoUri() != null){
+            if (user.getPhotoUri() != null) {
                 Glide.with(context).load(user.getPhotoUri()).fallback(R.drawable.default_profile).into(binding.profilePfp);
             } else {
                 GlideToVectorYou.justLoadImage(context, AvatarApiClient.generateAvatarUri(user.getDisplayName()), binding.profilePfp);

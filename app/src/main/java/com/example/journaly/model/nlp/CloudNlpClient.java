@@ -14,9 +14,9 @@ public class CloudNlpClient implements NlpRepository {
     private static CloudNlpService api = null;
     private static CloudNlpClient instance = null;
     private static final String BASE_URL = "https://language.googleapis.com/v1/";
-    private static final String API_KEY  = BuildConfig.GOOGLE_CLOUD_API_KEY;
+    private static final String API_KEY = BuildConfig.GOOGLE_CLOUD_API_KEY;
 
-    private CloudNlpClient(){
+    private CloudNlpClient() {
         GsonBuilder builder = new GsonBuilder();
         builder.registerTypeAdapter(AnalyzableText.class, new AnalyzableTextSerializer());
         builder.registerTypeAdapter(SentimentAnalysis.class, new SentimentDeserializer());
@@ -31,8 +31,8 @@ public class CloudNlpClient implements NlpRepository {
                 .create(CloudNlpService.class);
     }
 
-    public static CloudNlpClient getInstance(){
-        if (instance == null){
+    public static CloudNlpClient getInstance() {
+        if (instance == null) {
             instance = new CloudNlpClient();
         }
 
@@ -40,7 +40,7 @@ public class CloudNlpClient implements NlpRepository {
     }
 
     @Override
-    public Single<SentimentAnalysis> performSentimentAnalysis(String text){
+    public Single<SentimentAnalysis> performSentimentAnalysis(String text) {
         AnalyzableText analyzableText = new AnalyzableText(text);
         return api.getSentimentAnalysis(analyzableText, API_KEY);
     }

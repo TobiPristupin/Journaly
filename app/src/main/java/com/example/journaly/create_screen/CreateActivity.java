@@ -38,7 +38,6 @@ import org.parceler.Parcels;
 
 import java.io.File;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.Map;
 
 import es.dmoral.toasty.Toasty;
@@ -60,8 +59,8 @@ public class CreateActivity extends AppCompatActivity {
     private File photoFile = null;
     private Calendar entryDate = Calendar.getInstance();
 
-    private JournalRepository journalRepository = FirebaseJournalRepository.getInstance();
-    private NlpRepository nlpRepository = CloudNlpClient.getInstance();
+    private final JournalRepository journalRepository = FirebaseJournalRepository.getInstance();
+    private final NlpRepository nlpRepository = CloudNlpClient.getInstance();
     public static final String STATE_INTENT_KEY = "state";
     public static final String JOURNAL_ENTRY_INTENT_KEY = "entry";
     @Nullable
@@ -134,7 +133,6 @@ public class CreateActivity extends AppCompatActivity {
         binding.titleEdittext.setText(intentJournalEntry.getTitle());
         binding.mainTextEdittext.setText(intentJournalEntry.getText());
         binding.publicSwitch.setChecked(intentJournalEntry.isPublic());
-
 
 
         if (intentJournalEntry.getContainsImage()) {
@@ -227,7 +225,7 @@ public class CreateActivity extends AppCompatActivity {
                             Toasty.error(CreateActivity.this, "There was an error uploading the image", Toast.LENGTH_SHORT, true).show();
                             hideProgressBar();
                         },
-                         () -> { //no image uploaded
+                        () -> { //no image uploaded
                             JournalEntry journalEntry = new JournalEntry(title, text, createdAt, entryDate.getTime().getTime(), isPublic, sentiment, userId, false, null);
                             pushToDatabase(journalEntry);
                             hideProgressBar();
@@ -282,7 +280,7 @@ public class CreateActivity extends AppCompatActivity {
         builder.create().show();
     }
 
-    private void showDatePickerDialog(){
+    private void showDatePickerDialog() {
         int year = entryDate.get(Calendar.YEAR);
         int month = entryDate.get(Calendar.MONTH);
         int dayOfMonth = entryDate.get(Calendar.DAY_OF_MONTH);
@@ -298,7 +296,7 @@ public class CreateActivity extends AppCompatActivity {
         dateDialog.show();
     }
 
-    private void hideProgressBar(){
+    private void hideProgressBar() {
         //hiding the progress bar is done at the end of async operations (uploading an entry to the database)
         //which run on a separate thread. Changes to the UI must run on the UI thread. Thus we force
         //the change to run on the UI thread.
