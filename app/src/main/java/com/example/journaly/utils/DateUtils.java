@@ -24,4 +24,8 @@ public class DateUtils {
     public static String monthAndYear(long unixTime) {
         return monthAndYear(new Date(unixTime));
     }
+
+    public static String getShortenedWeekday(String longWeekday){
+        return longWeekday.substring(0, 3);
+    }
 }

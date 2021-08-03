@@ -64,9 +64,12 @@ dependencies {
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
     implementation 'com.squareup.retrofit2:adapter-rxjava3:2.9.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.5.0'
-//    implementation 'com.pixplicity.sharp:library:1.1.0@aar'
     implementation 'com.caverock:androidsvg-aar:1.4'
     implementation 'com.github.corouteam:GlideToVectorYou:v2.0.0'
+    implementation 'com.github.cachapa:ExpandableLayout:2.9.2'
+    implementation 'com.ernestoyaquello.stepperform:vertical-stepper-form:2.5.0'
+
+
 
 
     // Core library

@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import com.example.journaly.common.JournalsListViewerFragment;
+import com.example.journaly.login.AuthManager;
 import com.example.journaly.model.users.User;
 
 import org.jetbrains.annotations.NotNull;
@@ -12,10 +13,13 @@ import org.jetbrains.annotations.NotNull;
 public class ProfileSectionAdapter extends FragmentStateAdapter {
 
     private final User user;
+    //True if {user} is the currently logged in user on this device
+    private boolean isUserLoggedIn;
 
     public ProfileSectionAdapter(@NonNull @NotNull Fragment fragment, User user) {
         super(fragment);
         this.user = user;
+        this.isUserLoggedIn = user.getUid().equals(AuthManager.getInstance().getLoggedInUserId());
     }
 
 
@@ -30,7 +34,8 @@ public class ProfileSectionAdapter extends FragmentStateAdapter {
                 JournalsListViewerFragment.Mode profileMode = JournalsListViewerFragment.Mode.USER_PROFILE;
                 return JournalsListViewerFragment.newInstance(profileMode, user.getUid());
             case 2:
-                return ProfileAboutFragment.newInstance(user);
+                assert isUserLoggedIn; //This case should never run if the user we're viewing is not the one currently logged in
+                return ProfileGoalsFragment.newInstance(user);
         }
 
         throw new RuntimeException("Unreachable");
@@ -38,6 +43,10 @@ public class ProfileSectionAdapter extends FragmentStateAdapter {
 
     @Override
     public int getItemCount() {
-        return 3;
+        if (isUserLoggedIn){
+            return 3; //include the "Goals" tab
+        }
+
+        return 2; //Do not include the "Goal" tab
     }
 }

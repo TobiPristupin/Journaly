@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".goals_screen.CreateGoalActivity">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/create_goal_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:layout_alignParentTop="true"
+        android:background="@color/primary"
+        android:elevation="4dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+        app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:title="Create a Goal"
+        app:titleTextColor="@android:color/white" />
+
+    <ernestoyaquello.com.verticalstepperform.VerticalStepperFormView
+        android:id="@+id/stepper_form"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:form_circle_background_color="@color/primary"
+        app:form_next_button_background_color="@color/primary"
+        app:form_next_button_pressed_background_color="@color/primary_dark"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/create_goal_toolbar"
+        app:form_confirmation_step_title_text="Confirm"
+        app:form_last_button_text="Create Goal"
+        app:form_allow_non_linear_navigation="true"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

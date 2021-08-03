@@ -14,13 +14,14 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Journaly">
-        <activity android:name=".profile_screen.ProfileActivity"></activity>
+        <activity android:name=".goals_screen.CreateGoalActivity"></activity>
+        <activity android:name=".profile_screen.ProfileActivity" />
         <activity android:name=".settings_screen.SettingsActivity" />
         <activity android:name=".create_screen.CreateActivity" />
         <activity android:name=".login.LoginActivity" />
-        <activity android:name=".MainActivity"
-            android:windowSoftInputMode="adjustPan"
-            >
+        <activity
+            android:name=".MainActivity"
+            android:windowSoftInputMode="adjustPan">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

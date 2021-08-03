@@ -48,7 +48,6 @@ public class ProfileFragment extends Fragment {
     private User user;
     private UsersRepository usersRepository;
     private CompositeDisposable disposables;
-    private final boolean viewsInitialized = false;
 
     public ProfileFragment() {
         // Required empty public constructor
@@ -152,7 +151,7 @@ public class ProfileFragment extends Fragment {
                     tab.setText("Journals");
                     break;
                 case 2:
-                    tab.setText("Goals");
+                    tab.setText("Goal");
                     break;
             }
         }).attach();

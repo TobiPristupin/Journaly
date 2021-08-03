@@ -1,14 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".profile_screen.ProfileGoalsFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+    <ImageView
+        android:id="@+id/no_goal_image"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/icons8_goal_100"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.3"
+        android:alpha="0"
+        android:visibility="gone"
+        tools:alpha="1"
+        tools:visibility="visible"/>
 
-</FrameLayout>
+    <TextView
+        android:id="@+id/no_goal_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="It looks like you have no goal..."
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/no_goal_image"
+        android:alpha="0"
+        android:visibility="gone"
+        tools:alpha="1"
+        tools:visibility="visible"/>
+
+    <Button
+        android:id="@+id/no_goal_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:background="@android:color/transparent"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="?attr/selectableItemBackground"
+        android:minHeight="12dp"
+        android:padding="0dp"
+        android:text="Add One"
+        android:textColor="@color/primary"
+        app:layout_constraintEnd_toEndOf="@+id/no_goal_text"
+        app:layout_constraintStart_toStartOf="@+id/no_goal_text"
+        app:layout_constraintTop_toBottomOf="@+id/no_goal_text"
+        android:alpha="0"
+        android:visibility="gone"
+        tools:alpha="1"
+        tools:visibility="visible"
+        />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
