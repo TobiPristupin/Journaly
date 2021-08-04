@@ -18,4 +18,15 @@ public class AnimationUtils {
             view.animate().setDuration(duration).alpha(0.0f);
         }
     }
+
+    public static void fadeOut(long duration, Runnable endAction, View... views) {
+        for (int i = 0; i < views.length - 1; i ++){
+            views[i].setVisibility(View.GONE);
+            views[i].animate().setDuration(duration).alpha(0.0f);
+        }
+
+        //only enable endAction on the last view animated. We don't want to run endAction for every view.
+        views[views.length - 1].setVisibility(View.GONE);
+        views[views.length - 1].animate().setDuration(duration).alpha(0.0f).withEndAction(endAction);
+    }
 }

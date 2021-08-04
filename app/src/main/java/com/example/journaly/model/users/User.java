@@ -51,6 +51,10 @@ public class User {
     //is this user currently in need
     private boolean isInNeed;
 
+    //If the user has a journaling goal set
+    @Nullable
+    private Goal goal;
+
     public User() {
         //empty constructor for firebase
     }
@@ -64,7 +68,8 @@ public class User {
                 @Nullable Map<String, String> following,
                 double negativityThreshold,
                 String idOfLastJournalEntryAnalyzed,
-                boolean isInNeed) {
+                boolean isInNeed,
+                @Nullable Goal goal) {
         this.uid = uid;
         this.photoUri = photoUri;
         this.email = email;
@@ -75,10 +80,11 @@ public class User {
         this.negativityThreshold = negativityThreshold;
         this.idOfLastJournalEntryAnalyzed = idOfLastJournalEntryAnalyzed;
         this.isInNeed = isInNeed;
+        this.goal = goal;
     }
 
     public static User withDefaultValues(String uid, @Nullable String photoUri, String email) {
-        return new User(uid, photoUri, email, null, null, null, null, User.DEFAULT_NEGATIVITY_THRESHOLD, "", false);
+        return new User(uid, photoUri, email, null, null, null, null, User.DEFAULT_NEGATIVITY_THRESHOLD, "", false, null);
     }
 
     public String getUid() {
@@ -185,5 +191,14 @@ public class User {
 
     public void setInNeed(boolean inNeed) {
         isInNeed = inNeed;
+    }
+
+    @Nullable
+    public Goal getGoal() {
+        return goal;
+    }
+
+    public void setGoal(@Nullable Goal goal) {
+        this.goal = goal;
     }
 }

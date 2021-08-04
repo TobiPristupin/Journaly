@@ -15,6 +15,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Observable;
@@ -144,6 +145,24 @@ public class FirebaseUsersRepository implements UsersRepository {
                 @Override
                 public void onCancelled(@NonNull @NotNull DatabaseError error) {
                     Log.w(TAG, error.getMessage());
+                }
+            });
+        });
+    }
+
+    @Override
+    public Observable<Optional<Goal>> fetchUserGoal() {
+        return Observable.create(emitter -> {
+            String loggedInId = AuthManager.getInstance().getLoggedInUserId();
+            userDatabaseRef.child(loggedInId).child("goal").addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
+                    emitter.onNext(Optional.ofNullable(snapshot.getValue(Goal.class)));
+                }
+
+                @Override
+                public void onCancelled(@NonNull @NotNull DatabaseError error) {
+                    emitter.onError(error.toException());
                 }
             });
         });
@@ -341,10 +360,25 @@ public class FirebaseUsersRepository implements UsersRepository {
     @Override
     public Completable updateInNeed(String userId, boolean inNeed) {
         return Completable.create(emitter -> {
-            String loggedInId = AuthManager.getInstance().getLoggedInUserId();
             userDatabaseRef.child(userId).child("inNeed").setValue(inNeed)
                     .addOnCompleteListener(task -> emitter.onComplete())
                     .addOnFailureListener(e -> emitter.onError(e));
         });
+    }
+
+    @Override
+    public Completable updateGoal(Goal goal) {
+        return Completable.create(emitter -> {
+            String loggedInId = AuthManager.getInstance().getLoggedInUserId();
+            userDatabaseRef.child(loggedInId).child("goal").setValue(goal)
+                    .addOnCompleteListener(task -> emitter.onComplete())
+                    .addOnFailureListener(e -> emitter.onError(e));
+        });
+    }
+
+    @Override
+    public Completable deleteGoal() {
+        //Setting a value to null is the way to delete entries in firebase
+        return updateGoal(null);
     }
 }

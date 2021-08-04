@@ -1,6 +1,7 @@
 package com.example.journaly.model.users;
 
 import java.util.List;
+import java.util.Optional;
 
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Observable;
@@ -20,6 +21,8 @@ public interface UsersRepository {
     Observable<List<User>> fetchAllUsers();
 
     Observable<List<User>> fetchUsersInNeed();
+
+    Observable<Optional<Goal>> fetchUserGoal();
 
     Completable updateUserBio(String bio);
 
@@ -42,5 +45,9 @@ public interface UsersRepository {
     Completable updateInNeed(String userId, boolean inNeed);
 
     Completable updateProfilePicture(String url);
+
+    Completable updateGoal(Goal goal);
+
+    Completable deleteGoal();
 
 }

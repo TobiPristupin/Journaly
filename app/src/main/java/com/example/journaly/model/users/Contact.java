@@ -1,5 +1,8 @@
 package com.example.journaly.model.users;
 
+import org.parceler.Parcel;
+
+@Parcel(Parcel.Serialization.BEAN)
 public class Contact {
 
     private String name;
@@ -9,7 +12,6 @@ public class Contact {
     private String messageToSend;
 
     public Contact(){
-
     }
 
     public Contact(String name, String phoneNumber, String messageToSend) {
@@ -40,5 +42,10 @@ public class Contact {
 
     public void setMessageToSend(String messageToSend) {
         this.messageToSend = messageToSend;
+    }
+
+    //Contact objects are created incrementally by the user, thus the contact object may be in an invalid state
+    public boolean isInValidState(){
+        return name != null && phoneNumber != null;
     }
 }
