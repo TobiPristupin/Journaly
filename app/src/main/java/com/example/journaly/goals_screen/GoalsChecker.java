@@ -4,6 +4,7 @@ import com.example.journaly.model.journals.JournalEntry;
 import com.example.journaly.model.journals.JournalRepository;
 import com.example.journaly.model.users.Goal;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -19,12 +20,16 @@ import static java.time.temporal.ChronoUnit.DAYS;
 //Description of the algorithm for determining if a goal is met can be found in the {performGoalAnalysis} method.
 public class GoalsChecker {
 
+    //make clock a public variable so we can mock it in tests. Ideally this should be private and mocked
+    //with a library such as mockito. Or even better, use some type of dependency injection to pass in the clock.
+    public static Clock clock = Clock.systemDefaultZone();
+
     //returns true if user is currently meeting their goal
     public static Single<Boolean> isGoalMet(Goal goal, String loggedInId, JournalRepository journalRepository) {
         return Single.create(emitter -> {
             journalRepository.fetch()
                     .map(entries -> entries.stream()
-                            .filter(journalEntry -> journalEntry.getId().equals(loggedInId))
+                            .filter(journalEntry -> journalEntry.getUserId().equals(loggedInId))
                             .collect(Collectors.toList()))
                     .subscribe(entries -> {
                         emitter.onSuccess(performGoalAnalysis(goal, entries));
@@ -57,6 +62,11 @@ public class GoalsChecker {
         //only take posts created after the creation of the goal
         List<JournalEntry> entries = entriesByUser.stream().filter(journalEntry -> journalEntry.getCreatedAt() > goal.getCreatedAt()).collect(Collectors.toList());
         int requiredNumberOfGroups = calculateRequiredNumberOfGroups(goal);
+
+        if (requiredNumberOfGroups == 0){ //we haven't elapse a 3 day timeframe yet, so can't determine if goal is met.
+            return true;
+        }
+
         int[] entriesByGroup = new int[requiredNumberOfGroups];
 
         for (JournalEntry entry : entries){
@@ -73,7 +83,7 @@ public class GoalsChecker {
     }
 
     private static int calculateRequiredNumberOfGroups(Goal goal) {
-        LocalDate currentTime = LocalDate.now();
+        LocalDate currentTime = LocalDate.now(clock);
         LocalDate goalPosted = Instant.ofEpochMilli(goal.getCreatedAt()).atZone(ZoneId.systemDefault()).toLocalDate();
         long daysSinceGoalCreated = ChronoUnit.DAYS.between(goalPosted, currentTime);
         /*

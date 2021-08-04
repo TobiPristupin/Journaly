@@ -2,9 +2,12 @@ package com.example.journaly;
 
 import android.graphics.Bitmap;
 
+import com.example.journaly.goals_screen.GoalsChecker;
 import com.example.journaly.model.avatar.AvatarApiClient;
 import com.example.journaly.model.journals.JournalEntry;
+import com.example.journaly.model.journals.JournalRepository;
 import com.example.journaly.model.nlp.CloudNlpClient;
+import com.example.journaly.model.users.Goal;
 import com.example.journaly.model.users.User;
 import com.example.journaly.model.users.UserInNeedUtils;
 import com.example.journaly.utils.BitmapUtils;
@@ -27,19 +30,12 @@ import static org.junit.Assert.fail;
  *
  * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
  */
-public class UnitTests {
+public class UserInNeedTest {
+
+
 
     @Test
-    public void performSentimentAnalysisWithGoogleNLP() {
-        CloudNlpClient.getInstance().performSentimentAnalysis("I love you").blockingSubscribe(sentimentAnalysis -> {
-            assertTrue(sentimentAnalysis.getScore() > 0);
-        }, throwable -> {
-            fail(throwable.toString());
-        });
-    }
-
-    @Test
-    public void UserInNeedIsDetected(){
+    public void UserInNeedIsDetected() {
         String userId = "123";
         User user = User.withDefaultValues(userId, null, null);
         List<JournalEntry> entries = new ArrayList<>();

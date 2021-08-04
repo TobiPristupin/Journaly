@@ -27,7 +27,9 @@ import com.github.nisrulz.sensey.ShakeDetector;
 
 import java.util.Optional;
 
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.functions.Consumer;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -159,7 +161,10 @@ public class MainActivity extends AppCompatActivity {
 
             Goal goal = optionalGoal.get();
             String loggedInId = AuthManager.getInstance().getLoggedInUserId();
-            GoalsChecker.isGoalMet(goal, loggedInId, journalRepository).subscribe(goalIsMet -> {
+            GoalsChecker.isGoalMet(goal, loggedInId, journalRepository)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(goalIsMet -> {
                 if (!goalIsMet){
                     System.out.println("Goal is not met!!!"); //TODO: Send SMS
                 }

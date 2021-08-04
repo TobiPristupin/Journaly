@@ -39,7 +39,6 @@ public class Goal {
         this.reminderDays = reminderDays;
         this.reminderHour = reminderHour;
         this.reminderMinute = reminderMinute;
-        this.createdAt = createdAt;
         this.lastFailTime = -1;
         this.createdAt = System.currentTimeMillis();
 
