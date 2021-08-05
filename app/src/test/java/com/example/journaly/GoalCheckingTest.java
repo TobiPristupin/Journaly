@@ -73,25 +73,7 @@ public class GoalCheckingTest {
     }
 
     private void checkGoalAndExpectResult(Goal goal, List<JournalEntry> entries, boolean expectedResult){
-        JournalRepository mockedRepository = new JournalRepository() {
-            @Override
-            public String addOrUpdate(JournalEntry journalEntry) {
-                throw new RuntimeException("STUB");
-            }
-
-            @Override
-            public void delete(JournalEntry journalEntry) {
-                throw new RuntimeException("STUB");
-            }
-
-            @Override
-            public Observable<List<JournalEntry>> fetch() {
-                return Observable.just(entries);
-            }
-        };
-
-
-        boolean result = GoalsChecker.isGoalMet(goal, defaultUserId, mockedRepository).blockingGet();
+        boolean result = GoalsChecker.isGoalMet(goal, entries);
         Assert.assertEquals(result, expectedResult);
     }
 }

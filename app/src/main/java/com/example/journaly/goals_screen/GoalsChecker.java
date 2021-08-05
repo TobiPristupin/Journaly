@@ -22,24 +22,11 @@ public class GoalsChecker {
 
     //make clock a public variable so we can mock it in tests. Ideally this should be private and mocked
     //with a library such as mockito. Or even better, use some type of dependency injection to pass in the clock.
-    public static Clock clock = Clock.systemDefaultZone();
-
-    //returns true if user is currently meeting their goal
-    public static Single<Boolean> isGoalMet(Goal goal, String loggedInId, JournalRepository journalRepository) {
-        return Single.create(emitter -> {
-            journalRepository.fetch()
-                    .map(entries -> entries.stream()
-                            .filter(journalEntry -> journalEntry.getUserId().equals(loggedInId))
-                            .collect(Collectors.toList()))
-                    .subscribe(entries -> {
-                        emitter.onSuccess(performGoalAnalysis(goal, entries));
-                    });
-        });
-    }
+    public static Clock clock = Clock.fixed(Instant.ofEpochMilli(System.currentTimeMillis()), ZoneId.systemDefault());
 
     //Determines if a goal is met, given all the posts by a user.
     //A goal is of the form: post X journal entries every Y days. A goal becomes active the moment it is created.
-    private static boolean performGoalAnalysis(Goal goal, List<JournalEntry> entriesByUser) {
+    public static boolean isGoalMet(Goal goal, List<JournalEntry> entriesByUser) {
         /*
         For all the following comments in this method, take as an example a goal that requires the user to post 3 journal entries every 4 days.
 
@@ -59,8 +46,12 @@ public class GoalsChecker {
         have no zeros, and all numbers > than the required number of posts per group.
         */
 
-        //only take posts created after the creation of the goal
-        List<JournalEntry> entries = entriesByUser.stream().filter(journalEntry -> journalEntry.getCreatedAt() > goal.getCreatedAt()).collect(Collectors.toList());
+
+        List<JournalEntry> entries = entriesByUser.stream()
+                .filter(journalEntry -> journalEntry.getCreatedAt() > goal.getCreatedAt()) //only take posts created after the creation of the goal
+                .filter(journalEntry -> journalEntry.getCreatedAt() > goal.getLastFailTime()) //only take posts created after the last time this goal was failed
+                .collect(Collectors.toList());
+
         int requiredNumberOfGroups = calculateRequiredNumberOfGroups(goal);
 
         if (requiredNumberOfGroups == 0){ //we haven't elapse a 3 day timeframe yet, so can't determine if goal is met.
@@ -83,9 +74,15 @@ public class GoalsChecker {
     }
 
     private static int calculateRequiredNumberOfGroups(Goal goal) {
+        LocalDate startTime;
+        if (goal.getLastFailTime() != -1){
+            startTime = Instant.ofEpochMilli(goal.getLastFailTime()).atZone(ZoneId.systemDefault()).toLocalDate();
+        } else {
+            startTime = Instant.ofEpochMilli(goal.getCreatedAt()).atZone(ZoneId.systemDefault()).toLocalDate();
+        }
+
         LocalDate currentTime = LocalDate.now(clock);
-        LocalDate goalPosted = Instant.ofEpochMilli(goal.getCreatedAt()).atZone(ZoneId.systemDefault()).toLocalDate();
-        long daysSinceGoalCreated = ChronoUnit.DAYS.between(goalPosted, currentTime);
+        long daysSinceGoalCreated = ChronoUnit.DAYS.between(startTime, currentTime);
         /*
         By dividing daysSinceGoalCreated with the goal's day frequency, and the casting to int, causing the value to truncate,
         we achieve the desired value. For example, if it has been 11 days since goal creation, and this goal requires user to post
@@ -96,9 +93,15 @@ public class GoalsChecker {
     }
 
     private static int calculateGroupForEntry(JournalEntry entry, Goal goal) {
-        LocalDate goalPosted = Instant.ofEpochMilli(goal.getCreatedAt()).atZone(ZoneId.systemDefault()).toLocalDate();
+        LocalDate startTime;
+        if (goal.getLastFailTime() != -1){
+            startTime = Instant.ofEpochMilli(goal.getLastFailTime()).atZone(ZoneId.systemDefault()).toLocalDate();
+        } else {
+            startTime = Instant.ofEpochMilli(goal.getCreatedAt()).atZone(ZoneId.systemDefault()).toLocalDate();
+        }
         LocalDate entryPosted = Instant.ofEpochMilli(entry.getCreatedAt()).atZone(ZoneId.systemDefault()).toLocalDate();
-        long daysBetween = DAYS.between(goalPosted, entryPosted);
+
+        long daysBetween = DAYS.between(startTime, entryPosted);
 
         //Explanation of this division can be found in {calculateRequiredNumberOfGroups}
         return (int) (daysBetween / goal.getDaysFrequency());
