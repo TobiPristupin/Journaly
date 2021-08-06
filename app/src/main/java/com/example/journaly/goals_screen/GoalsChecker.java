@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 
 import io.reactivex.rxjava3.core.Single;
 
+
 import static java.time.temporal.ChronoUnit.DAYS;
 
 //Description of the algorithm for determining if a goal is met can be found in the {performGoalAnalysis} method.
@@ -31,7 +32,7 @@ public class GoalsChecker {
         For all the following comments in this method, take as an example a goal that requires the user to post 3 journal entries every 4 days.
 
         First we must group all journal entries into their different groups. We must create a group for all entries posted between [0, 4) days
-        after the creation of the goal, another entry for posts created [4, 8) days, another for posts created [8, 12) days, and so on.
+        after the creation of the goal (*or the last time this goal was marked as failed), another entry for posts created [4, 8) days, another for posts created [8, 12) days, and so on.
         We then must make sure of two things:
             1) We have the number of required groups: If this goal was created 12 days ago, we need the three groups described above.
               For example, we cannot be missing group [4, 8), since that means the user has no posts in that timeframe.
@@ -44,6 +45,10 @@ public class GoalsChecker {
         How will we implement this? Make an array of length: required number of groups. Fill it with zeros. Iterate through all posts,
         and calculate their corresponding group. Add one to the array at the position of the corresponding group. Once finished, the array should
         have no zeros, and all numbers > than the required number of posts per group.
+
+        * We begin counting days since the last time this goal was failed, or the creation date of the goal, if the goal was never failed.
+        This is to avoid double failing a goal. For example, if the goal is journal 1 time every 1 day, and we mark it as failed on a certain day,
+        we don't want to mark it as failed again on that day, since that will trigger an SMS being sent again.
         */
 
 

@@ -20,9 +20,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 
 import com.bumptech.glide.Glide;
+import com.example.journaly.MainActivity;
 import com.example.journaly.R;
 import com.example.journaly.databinding.ActivityCreateBinding;
 import com.example.journaly.login.AuthManager;
+import com.example.journaly.login.LoginActivity;
 import com.example.journaly.model.cloud_storage.CloudStorageManager;
 import com.example.journaly.model.journals.FirebaseJournalRepository;
 import com.example.journaly.model.journals.JournalEntry;
@@ -73,6 +75,14 @@ public class CreateActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityCreateBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        //Since this activity can be opened from a notification, this checks for the scenario where a user
+        //gets a notification, then logs out, and then clicks on the notification, opening this activity and
+        //bypassing login
+        if (!AuthManager.getInstance().isLoggedIn()) {
+            goToLogin();
+            finish();
+        }
 
         extractDataFromIntent();
         initViews();
@@ -146,6 +156,7 @@ public class CreateActivity extends AppCompatActivity {
             binding.titleEdittext.setFocusable(false);
             binding.publicSwitch.setEnabled(false);
             binding.cameraFab.setVisibility(View.GONE);
+            binding.createDateSpinner.setVisibility(View.GONE);
         }
     }
 
@@ -301,6 +312,14 @@ public class CreateActivity extends AppCompatActivity {
         //which run on a separate thread. Changes to the UI must run on the UI thread. Thus we force
         //the change to run on the UI thread.
         runOnUiThread(() -> binding.createProgressBar.setVisibility(View.INVISIBLE));
+    }
+
+    private void goToLogin() {
+        Intent intent = new Intent(CreateActivity.this, LoginActivity.class);
+        //Flags prevent user from returning to MainActivityView when pressing back button
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
     }
 
     @Override

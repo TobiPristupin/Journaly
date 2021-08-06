@@ -28,7 +28,6 @@ public class GoalCheckingTest {
     public void goalChecking(){
         List<JournalEntry> entries = new ArrayList<>();
 
-
         //goal: journal 2 times every 3 days
         Goal goal = new Goal(2, 3, null, -1, -1, null);
         goal.setCreatedAt(0);

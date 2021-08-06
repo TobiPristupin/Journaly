@@ -20,6 +20,7 @@ import com.example.journaly.model.users.Contact;
 import com.example.journaly.model.users.FirebaseUsersRepository;
 import com.example.journaly.model.users.Goal;
 import com.example.journaly.model.users.UsersRepository;
+import com.example.journaly.notifications.AlarmSender;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -94,6 +95,7 @@ public class CreateGoalActivity extends AppCompatActivity {
 
         Goal goal = new Goal(timesFrequency, daysFrequency, daysToRemind, reminderHour, reminderMinute, contactMessage);
         usersRepository.updateGoal(goal).subscribe(() -> {
+            new AlarmSender(CreateGoalActivity.this).setAlarms(daysToRemind, reminderHour, reminderMinute);
             hideLoadingIndicator();
             CreateGoalActivity.this.onBackPressed();
         }, throwable -> {

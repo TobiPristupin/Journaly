@@ -162,7 +162,7 @@ public class FirebaseUsersRepository implements UsersRepository {
 
                 @Override
                 public void onCancelled(@NonNull @NotNull DatabaseError error) {
-                    emitter.onError(error.toException());
+                    Log.w(TAG, error.toException());
                 }
             });
         });

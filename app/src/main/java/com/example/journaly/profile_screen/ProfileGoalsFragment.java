@@ -15,6 +15,7 @@ import com.example.journaly.model.users.FirebaseUsersRepository;
 import com.example.journaly.model.users.Goal;
 import com.example.journaly.model.users.User;
 import com.example.journaly.model.users.UsersRepository;
+import com.example.journaly.notifications.AlarmSender;
 import com.example.journaly.utils.AnimationUtils;
 
 import java.util.Optional;
@@ -77,6 +78,7 @@ public class ProfileGoalsFragment extends Fragment {
 
         binding.deleteGoalIcon.setOnClickListener(v -> {
             usersRepository.deleteGoal().subscribe();
+            new AlarmSender(getContext()).cancelAlarm();
         });
     }
 

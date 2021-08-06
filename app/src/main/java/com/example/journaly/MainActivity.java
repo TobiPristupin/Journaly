@@ -28,6 +28,7 @@ import com.example.journaly.model.users.Contact;
 import com.example.journaly.model.users.FirebaseUsersRepository;
 import com.example.journaly.model.users.Goal;
 import com.example.journaly.model.users.UsersRepository;
+import com.example.journaly.notifications.NotificationSender;
 import com.example.journaly.profile_screen.ProfileFragment;
 import com.example.journaly.search_screen.SearchFragment;
 import com.example.journaly.sms.SmsSender;
@@ -77,6 +78,9 @@ public class MainActivity extends AppCompatActivity {
         initShakeDetection();
         initViews();
         performGoalChecking();
+        new NotificationSender(this).createNotificationChannel();
+
+//        new NotificationSender(this).sendJournalReminderNotification();
     }
 
     private void initShakeDetection() {

@@ -6,6 +6,9 @@
         android:name="android.hardware.camera"
         android:required="true" />
 
+    <uses-permission android:name="android.permission.SEND_SMS" />
+
+
     <application
         android:name=".MainApplication"
         android:allowBackup="true"
@@ -17,7 +20,8 @@
         <activity android:name=".goals_screen.CreateGoalActivity"></activity>
         <activity android:name=".profile_screen.ProfileActivity" />
         <activity android:name=".settings_screen.SettingsActivity" />
-        <activity android:name=".create_screen.CreateActivity" />
+        <activity android:name=".create_screen.CreateActivity"
+            android:parentActivityName=".MainActivity"/>
         <activity android:name=".login.LoginActivity" />
         <activity
             android:name=".MainActivity"

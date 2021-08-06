@@ -139,7 +139,7 @@ public class ProfileFragment extends Fragment {
     }
 
     private void initTabs() {
-        binding.profileViewpager.setSaveEnabled(true);
+        binding.profileViewpager.setSaveEnabled(false);
 
         binding.profileViewpager.setAdapter(new ProfileSectionAdapter(this, user));
         new TabLayoutMediator(binding.profileTabs, binding.profileViewpager, (tab, position) -> {
